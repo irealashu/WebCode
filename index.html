@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💻 WebCode SaaS</title>
+
+<title>💻 WebCode</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
 <style>
 *{
@@ -16,16 +19,16 @@ font-family:Segoe UI,sans-serif;
 :root{
 --bg:#0f172a;
 --card:#1e293b;
---text:#f8fafc;
 --border:#334155;
+--text:#f8fafc;
 --accent:#3b82f6;
 }
 
 body.light{
 --bg:#f8fafc;
 --card:#ffffff;
---text:#111827;
 --border:#d1d5db;
+--text:#111827;
 }
 
 body{
@@ -35,54 +38,31 @@ height:100vh;
 overflow:hidden;
 }
 
-.app{
-display:flex;
-height:100vh;
-}
-
-.sidebar{
-width:230px;
-background:var(--card);
-border-right:1px solid var(--border);
-padding:20px;
-overflow:auto;
-}
-
-.logo{
-font-size:22px;
-font-weight:bold;
-margin-bottom:25px;
-}
-
-.menu-item{
-padding:10px;
-margin-bottom:8px;
-border-radius:10px;
-cursor:pointer;
-}
-
-.menu-item:hover{
-background:rgba(255,255,255,.05);
-}
-
-.main{
-flex:1;
-display:flex;
-flex-direction:column;
-overflow:hidden;
-}
-
 .topbar{
 display:flex;
 justify-content:space-between;
 align-items:center;
 padding:12px 20px;
-border-bottom:1px solid var(--border);
 background:var(--card);
+border-bottom:1px solid var(--border);
+flex-wrap:wrap;
+gap:10px;
 }
 
-.actions button{
-margin-left:8px;
+#projectName{
+background:transparent;
+border:none;
+outline:none;
+color:var(--text);
+font-size:18px;
+font-weight:700;
+}
+
+.actions{
+display:flex;
+gap:8px;
+flex-wrap:wrap;
+align-items:center;
 }
 
 button{
@@ -92,14 +72,16 @@ border-radius:8px;
 cursor:pointer;
 background:var(--accent);
 color:white;
+font-weight:600;
 }
 
 .workspace{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-padding:10px;
+height:calc(100vh - 70px);
 overflow:auto;
+padding:10px;
+display:flex;
+flex-direction:column;
+gap:10px;
 }
 
 .editors{
@@ -121,408 +103,8 @@ margin-bottom:10px;
 
 textarea{
 width:100%;
-height:300px;
+height:350px;
 background:var(--bg);
 color:var(--text);
 border:1px solid var(--border);
-border-radius:8px;
-padding:10px;
-resize:none;
-font-family:monospace;
-}
-
-iframe{
-width:100%;
-height:400px;
-border:none;
-background:white;
-border-radius:8px;
-}
-
-.console{
-height:120px;
-overflow:auto;
-background:#000;
-color:#00ff66;
-padding:10px;
-border-radius:8px;
-font-family:monospace;
-}
-
-.stats{
-font-size:13px;
-color:gray;
-margin-top:8px;
-}
-
-.history-item{
-font-size:13px;
-padding:6px;
-cursor:pointer;
-border-bottom:1px solid var(--border);
-}
-
-.history-item:hover{
-background:rgba(255,255,255,.05);
-}
-
-@media(max-width:1000px){
-
-.workspace{
-grid-template-columns:1fr;
-}
-
-.editors{
-grid-template-columns:1fr;
-}
-
-.sidebar{
-display:none;
-}
-}
-</style>
-</head>
-
-<body>
-
-<div class="app">
-
-<div class="sidebar">
-<div class="logo">💻 WebCode</div>
-
-<div class="menu-item">📊 Dashboard</div>
-<div class="menu-item">📁 Projects</div>
-<div class="menu-item">🕒 History</div>
-<div class="menu-item">⭐ Templates</div>
-<div class="menu-item">⚙️ Settings</div>
-
-<hr style="margin:15px 0">
-
-<h4>🕒 Versions</h4>
-<div id="history"></div>
-</div>
-
-<div class="main">
-
-<div class="topbar">
-
-<div>
-<strong>📄 Untitled Project</strong>
-</div>
-
-<div class="actions">
-<label>
-<input type="checkbox" id="autorun" checked>
-Auto Run
-</label>
-
-<button onclick="saveProject()">💾 Save</button>
-<button onclick="exportProject()">📤 Export</button>
-<button onclick="importProject()">📥 Import</button>
-<button onclick="toggleTheme()">🌙</button>
-<button onclick="fullscreenPreview()">⛶</button>
-</div>
-
-</div>
-
-<div class="workspace">
-
-<div class="editors">
-
-<div class="panel">
-<h3>🧱 HTML</h3>
-<textarea id="htmlCode"><h1>Hello WebCode</h1>
-<p>Edit and build something amazing.</p></textarea>
-</div>
-
-<div class="panel">
-<h3>🎨 CSS</h3>
-<textarea id="cssCode">body{
-font-family:Arial;
-padding:20px;
-}
-h1{
-color:dodgerblue;
-}</textarea>
-</div>
-
-<div class="panel">
-<h3>⚡ JavaScript</h3>
-<textarea id="jsCode">console.log("WebCode Started");</textarea>
-</div>
-
-</div>
-
-<div>
-
-<div class="panel">
-<h3>👀 Live Preview</h3>
-<iframe id="preview"></iframe>
-
-<div class="stats" id="stats"></div>
-</div>
-
-<div class="panel" style="margin-top:10px;">
-<h3>📋 Console</h3>
-<div class="console" id="console"></div>
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-const htmlCode=document.getElementById("htmlCode");
-const cssCode=document.getElementById("cssCode");
-const jsCode=document.getElementById("jsCode");
-const preview=document.getElementById("preview");
-const consoleBox=document.getElementById("console");
-
-let logs=[];
-
-function log(message){
-logs.push(message);
-renderConsole();
-}
-
-function renderConsole(){
-consoleBox.innerHTML=logs.map(x=>"> "+x).join("<br>");
-}
-
-function runCode(){
-
-const html=htmlCode.value;
-const css=cssCode.value;
-const js=jsCode.value;
-
-updateStats();
-
-preview.srcdoc=`
-<!DOCTYPE html>
-<html>
-<head>
-<style>${css}</style>
-</head>
-<body>
-
-${html}
-
-<script>
-
-const oldLog = console.log;
-
-console.log = function(msg){
-parent.postMessage(
-{
-type:"console",
-message:msg
-},"*");
-oldLog(msg);
-}
-
-try{
-${js}
-}catch(err){
-parent.postMessage(
-{
-type:"console",
-message:err.message
-},"*");
-}
-
-<\/script>
-
-</body>
-</html>`;
-}
-
-window.addEventListener("message",(event)=>{
-if(event.data.type==="console"){
-log(event.data.message);
-}
-});
-
-function updateStats(){
-
-const html=htmlCode.value.length;
-const css=cssCode.value.length;
-const js=jsCode.value.length;
-
-document.getElementById("stats").innerHTML=
-`HTML ${html} chars |
- CSS ${css} chars |
- JS ${js} chars`;
-}
-
-function saveProject(){
-
-const db=
-JSON.parse(localStorage.getItem("webcode-db"))
-|| {projects:[],history:[]};
-
-const project={
-html:htmlCode.value,
-css:cssCode.value,
-js:jsCode.value,
-date:new Date().toLocaleString()
-};
-
-db.current=project;
-db.history.push(project);
-
-localStorage.setItem(
-"webcode-db",
-JSON.stringify(db)
-);
-
-loadHistory();
-
-alert("Project Saved");
-}
-
-function loadHistory(){
-
-const db=
-JSON.parse(localStorage.getItem("webcode-db"))
-|| {history:[]};
-
-const box=document.getElementById("history");
-
-box.innerHTML="";
-
-db.history.slice().reverse().forEach(item=>{
-
-const div=document.createElement("div");
-
-div.className="history-item";
-
-div.innerHTML=item.date;
-
-div.onclick=()=>{
-
-htmlCode.value=item.html;
-cssCode.value=item.css;
-jsCode.value=item.js;
-
-runCode();
-};
-
-box.appendChild(div);
-});
-}
-
-function toggleTheme(){
-
-document.body.classList.toggle("light");
-
-localStorage.setItem(
-"theme",
-document.body.classList.contains("light")
-);
-}
-
-function exportProject(){
-
-const data={
-html:htmlCode.value,
-css:cssCode.value,
-js:jsCode.value
-};
-
-const blob=new Blob(
-[JSON.stringify(data,null,2)],
-{type:"application/json"}
-);
-
-const a=document.createElement("a");
-
-a.href=URL.createObjectURL(blob);
-
-a.download="project.json";
-
-a.click();
-}
-
-function importProject(){
-
-const input=document.createElement("input");
-input.type="file";
-
-input.onchange=(e)=>{
-
-const file=e.target.files[0];
-
-const reader=new FileReader();
-
-reader.onload=()=>{
-
-const data=
-JSON.parse(reader.result);
-
-htmlCode.value=data.html||"";
-cssCode.value=data.css||"";
-jsCode.value=data.js||"";
-
-runCode();
-};
-
-reader.readAsText(file);
-};
-
-input.click();
-}
-
-function fullscreenPreview(){
-
-preview.requestFullscreen();
-}
-
-document.addEventListener("keydown",(e)=>{
-
-if(e.ctrlKey && e.key==="s"){
-e.preventDefault();
-saveProject();
-}
-
-if(e.ctrlKey && e.key==="Enter"){
-e.preventDefault();
-runCode();
-}
-
-if(e.ctrlKey && e.key==="l"){
-e.preventDefault();
-
-htmlCode.value="";
-cssCode.value="";
-jsCode.value="";
-
-runCode();
-}
-});
-
-function autoRun(){
-if(document.getElementById("autorun").checked){
-runCode();
-}
-}
-
-htmlCode.addEventListener("input",autoRun);
-cssCode.addEventListener("input",autoRun);
-jsCode.addEventListener("input",autoRun);
-
-if(localStorage.getItem("theme")==="true"){
-document.body.classList.add("light");
-}
-
-loadHistory();
-runCode();
-
-</script>
-
-</body>
-</html>
+border-
