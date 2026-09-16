@@ -5,11 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>💻 WebCode</title>
 
-<script 
-  src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" 
-  integrity="sha512-XMVd28F1oH/O71fzwBnV7HucLxVwtxf26XV8P4wPk26EDxuGZ91N8bsOttmnomcCD3CS5ZMRL50H0GgOHvegtg==" 
-  crossorigin="anonymous" 
-  referrerpolicy="no-referrer">
+<script src="./jszip.min.js"></script>
+<script>
+console.log("JSZip =", typeof JSZip);
+
+window.addEventListener("load", () => {
+    if (typeof JSZip === "undefined") {
+        alert("JSZip NOT loaded");
+    } else {
+        console.log("JSZip loaded successfully");
+    }
+});
 </script>
 
 <style>
@@ -430,7 +436,7 @@ async function exportProject(){
 
 ${htmlCode.value}
 
-<script src="script.js"><\/script>
+<script src="script.js"></script>
 
 </body>
 </html>`;
