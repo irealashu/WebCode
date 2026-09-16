@@ -3,108 +3,561 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
 <title>💻 WebCode</title>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.jsscript>
 
 <style>
 *{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Segoe UI,sans-serif;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Segoe UI,sans-serif;
 }
 
 :root{
---bg:#0f172a;
---card:#1e293b;
---border:#334155;
---text:#f8fafc;
---accent:#3b82f6;
+    --bg:#0f172a;
+    --card:#1e293b;
+    --border:#334155;
+    --text:#f8fafc;
+    --accent:#3b82f6;
 }
 
 body.light{
---bg:#f8fafc;
---card:#ffffff;
---border:#d1d5db;
---text:#111827;
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#d1d5db;
+    --text:#111827;
 }
 
 body{
-background:var(--bg);
-color:var(--text);
-height:100vh;
-overflow:hidden;
+    background:var(--bg);
+    color:var(--text);
+    height:100vh;
+    overflow:hidden;
 }
 
 .topbar{
-display:flex;
-justify-content:space-between;
-align-items:center;
-padding:12px 20px;
-background:var(--card);
-border-bottom:1px solid var(--border);
-flex-wrap:wrap;
-gap:10px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:10px;
+    padding:12px 20px;
+    background:var(--card);
+    border-bottom:1px solid var(--border);
+    flex-wrap:wrap;
 }
 
 #projectName{
-background:transparent;
-border:none;
-outline:none;
-color:var(--text);
-font-size:18px;
-font-weight:700;
+    background:transparent;
+    border:none;
+    color:var(--text);
+    font-size:18px;
+    font-weight:700;
+    outline:none;
 }
 
 .actions{
-display:flex;
-gap:8px;
-flex-wrap:wrap;
-align-items:center;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    align-items:center;
 }
 
 button{
-padding:8px 14px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:var(--accent);
-color:white;
-font-weight:600;
+    border:none;
+    padding:8px 14px;
+    border-radius:8px;
+    background:var(--accent);
+    color:white;
+    cursor:pointer;
 }
 
 .workspace{
-height:calc(100vh - 70px);
-overflow:auto;
-padding:10px;
-display:flex;
-flex-direction:column;
-gap:10px;
+    height:calc(100vh - 70px);
+    overflow:auto;
+    padding:10px;
 }
 
 .editors{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:10px;
 }
 
 .panel{
-background:var(--card);
-border:1px solid var(--border);
-border-radius:12px;
-padding:10px;
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:12px;
+    padding:10px;
 }
 
 .panel h3{
-margin-bottom:10px;
+    margin-bottom:10px;
 }
 
 textarea{
-width:100%;
-height:350px;
-background:var(--bg);
-color:var(--text);
-border:1px solid var(--border);
-border-
+    width:100%;
+    height:350px;
+    resize:none;
+    padding:10px;
+    border-radius:8px;
+    border:1px solid var(--border);
+    background:var(--bg);
+    color:var(--text);
+    font-family:Consolas,monospace;
+}
+
+.preview-panel{
+    margin-top:10px;
+}
+
+iframe{
+    width:100%;
+    height:500px;
+    border:none;
+    background:white;
+    border-radius:8px;
+}
+
+.stats{
+    margin-top:10px;
+    font-size:13px;
+    opacity:.8;
+}
+
+.history{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:10px;
+}
+
+.history button{
+    background:#475569;
+}
+
+body.light .history button{
+    background:#64748b;
+}
+
+@media(max-width:1000px){
+
+    .editors{
+        grid-template-columns:1fr;
+    }
+
+    textarea{
+        height:250px;
+    }
+
+    iframe{
+        height:400px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="topbar">
+
+<input
+id="projectName"
+type="text"
+value="Untitled Project"
+>
+
+<div class="actions">
+
+<label>
+<input
+type="checkbox"
+id="autorun"
+checked
+>
+Auto Run
+</label>
+
+<button onclick="saveProject()">💾 Save</button>
+
+<button onclick="exportProject()">📦 Export ZIP</button>
+
+<button onclick="importFiles()">📥 Import Files</button>
+
+<button onclick="toggleTheme()">🌙 Theme</button>
+
+<button onclick="fullscreenPreview()">⛶ Fullscreen</button>
+
+</div>
+
+</div>
+
+<div class="workspace">
+
+<div class="editors">
+
+<div class="panel">
+<h3>🧱 index.html</h3>
+
+<textarea id="htmlCode"><h1>Hello WebCode</h1>
+<p>Start building something amazing.</p></textarea>
+
+</div>
+
+<div class="panel">
+<h3>🎨 style.css</h3>
+
+<textarea id="cssCode">body{
+font-family:Arial,sans-serif;
+padding:20px;
+}
+
+h1{
+color:dodgerblue;
+}</textarea>
+
+</div>
+
+<div class="panel">
+<h3>⚡ script.js</h3>
+
+<textarea id="jsCode">document.body.style.transition="all .3s";</textarea>
+
+</div>
+
+</div>
+
+<div class="panel preview-panel">
+
+<h3>👀 Live Preview</h3>
+
+<iframe
+id="preview"
+sandbox="allow-scripts allow-modals"
+></iframe>
+
+<div
+id="stats"
+class="stats"
+></div>
+
+<h3 style="margin-top:15px;">🕒 Version History</h3>
+
+<div
+id="history"
+class="history"
+></div>
+
+</div>
+
+</div>
+
+<script>
+
+const htmlCode = document.getElementById("htmlCode");
+const cssCode = document.getElementById("cssCode");
+const jsCode = document.getElementById("jsCode");
+const preview = document.getElementById("preview");
+
+function updateStats(){
+
+    document.getElementById("stats").innerHTML =
+    `HTML: ${htmlCode.value.length} chars |
+     CSS: ${cssCode.value.length} chars |
+     JS: ${jsCode.value.length} chars`;
+}
+
+function runCode(){
+
+    const html = htmlCode.value;
+    const css = cssCode.value;
+    const js = jsCode.value;
+
+    preview.srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+${css}
+</style>
+</head>
+<body>
+
+${html}
+
+<script>
+try{
+${js}
+}catch(error){
+document.body.innerHTML += '<pre style="color:red">'+error+'</pre>';
+}
+<\/script>
+
+</body>
+</html>
+`;
+
+    updateStats();
+}
+
+function autoRun(){
+
+    if(document.getElementById("autorun").checked){
+        runCode();
+    }
+
+    saveDraft();
+}
+
+htmlCode.addEventListener("input", autoRun);
+cssCode.addEventListener("input", autoRun);
+jsCode.addEventListener("input", autoRun);
+
+function saveDraft(){
+
+    localStorage.setItem("draft-html", htmlCode.value);
+    localStorage.setItem("draft-css", cssCode.value);
+    localStorage.setItem("draft-js", jsCode.value);
+}
+
+function restoreDraft(){
+
+    htmlCode.value =
+    localStorage.getItem("draft-html") || htmlCode.value;
+
+    cssCode.value =
+    localStorage.getItem("draft-css") || cssCode.value;
+
+    jsCode.value =
+    localStorage.getItem("draft-js") || jsCode.value;
+}
+
+function saveProject(){
+
+    const db =
+    JSON.parse(localStorage.getItem("webcode-db")) || {
+        history:[]
+    };
+
+    const project = {
+
+        name:document.getElementById("projectName").value,
+
+        html:htmlCode.value,
+        css:cssCode.value,
+        js:jsCode.value,
+
+        timestamp:new Date().toLocaleString()
+
+    };
+
+    db.history.push(project);
+
+    localStorage.setItem(
+        "webcode-db",
+        JSON.stringify(db)
+    );
+
+    loadHistory();
+
+    alert("Project saved");
+}
+
+function loadHistory(){
+
+    const historyDiv =
+    document.getElementById("history");
+
+    historyDiv.innerHTML = "";
+
+    const db =
+    JSON.parse(localStorage.getItem("webcode-db")) || {
+        history:[]
+    };
+
+    const reversed =
+    [...db.history].reverse();
+
+    reversed.forEach(item=>{
+
+        const btn =
+        document.createElement("button");
+
+        btn.textContent = item.timestamp;
+
+        btn.onclick = function(){
+
+            document.getElementById(
+                "projectName"
+            ).value = item.name;
+
+            htmlCode.value = item.html;
+            cssCode.value = item.css;
+            jsCode.value = item.js;
+
+            runCode();
+        };
+
+        historyDiv.appendChild(btn);
+    });
+}
+
+async function exportProject(){
+
+    if(typeof JSZip === "undefined"){
+        alert("JSZip failed to load.");
+        return;
+    }
+
+    const zip = new JSZip();
+
+    const completeHTML =
+`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>${document.getElementById("projectName").value}</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+${htmlCode.value}
+
+<script src="script.js"><\/script>
+
+</body>
+</html>`;
+
+    zip.file(
+        "index.html",
+        completeHTML
+    );
+
+    zip.file(
+        "style.css",
+        cssCode.value
+    );
+
+    zip.file(
+        "script.js",
+        jsCode.value
+    );
+
+    const blob =
+    await zip.generateAsync({
+        type:"blob"
+    });
+
+    const a =
+    document.createElement("a");
+
+    a.href =
+    URL.createObjectURL(blob);
+
+    a.download =
+    (document.getElementById("projectName").value || "project")
+    + ".zip";
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    document.body.removeChild(a);
+
+    URL.revokeObjectURL(a.href);
+}
+
+function importFiles(){
+
+    const input =
+    document.createElement("input");
+
+    input.type = "file";
+    input.multiple = true;
+    input.accept = ".html,.css,.js";
+
+    input.onchange = async function(){
+
+        const files =
+        Array.from(input.files);
+
+        for(const file of files){
+
+            const content =
+            await file.text();
+
+            if(file.name.toLowerCase().endsWith(".html")){
+                htmlCode.value = content;
+            }
+
+            if(file.name.toLowerCase().endsWith(".css")){
+                cssCode.value = content;
+            }
+
+            if(file.name.toLowerCase().endsWith(".js")){
+                jsCode.value = content;
+            }
+        }
+
+        runCode();
+    };
+
+    input.click();
+}
+
+function toggleTheme(){
+
+    document.body.classList.toggle(
+        "light"
+    );
+
+    localStorage.setItem(
+        "theme",
+        document.body.classList.contains("light")
+    );
+}
+
+function fullscreenPreview(){
+
+    if(preview.requestFullscreen){
+        preview.requestFullscreen();
+    }
+}
+
+document.addEventListener("keydown", function(e){
+
+    if(e.ctrlKey && e.key === "s"){
+        e.preventDefault();
+        saveProject();
+    }
+
+    if(e.ctrlKey && e.key === "Enter"){
+        e.preventDefault();
+        runCode();
+    }
+
+    if(e.ctrlKey && e.key.toLowerCase() === "l"){
+        e.preventDefault();
+
+        htmlCode.value = "";
+        cssCode.value = "";
+        jsCode.value = "";
+
+        runCode();
+    }
+});
+
+if(localStorage.getItem("theme") === "true"){
+    document.body.classList.add("light");
+}
+
+restoreDraft();
+loadHistory();
+runCode();
+
+</script>
+
+</body>
+</html>
