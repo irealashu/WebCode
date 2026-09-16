@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💻 Code Interpreter</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#0f172a;
+    color:#f8fafc;
+    min-height:100vh;
+}
+
+header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    background:#1e293b;
+    border-bottom:1px solid #334155;
+}
+
+h1{
+    font-size:1.4rem;
+}
+
+.actions{
+    display:flex;
+    gap:10px;
+}
+
+button{
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:14px;
+}
+
+#runBtn{
+    background:#22c55e;
+    color:white;
+}
+
+#clearBtn{
+    background:#ef4444;
+    color:white;
+}
+
+main{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    padding:20px;
+}
+
+.editor{
+    background:#1e293b;
+    border-radius:12px;
+    padding:12px;
+}
+
+.editor h2{
+    margin-bottom:10px;
+}
+
+textarea{
+    width:100%;
+    height:300px;
+    resize:none;
+    border:1px solid #334155;
+    border-radius:8px;
+    background:#0f172a;
+    color:white;
+    padding:10px;
+    font-family:monospace;
+}
+
+.preview-section{
+    padding:20px;
+}
+
+.preview-section h2{
+    margin-bottom:10px;
+}
+
+iframe{
+    width:100%;
+    height:350px;
+    border:none;
+    background:white;
+    border-radius:12px;
+}
+
+@media(max-width:900px){
+    main{
+        grid-template-columns:1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>💻 Code Interpreter</h1>
+
+    <div class="actions">
+        <button id="runBtn">▶️ Run</button>
+        <button id="clearBtn">🗑️ Clear</button>
+    </div>
+</header>
+
+<main>
+
+    <section class="editor">
+        <h2>🧱 HTML</h2>
+        <textarea id="htmlCode"><h1>Hello World</h1>
+<p>Welcome to the Code Interpreter.</p></textarea>
+    </section>
+
+    <section class="editor">
+        <h2>🎨 CSS</h2>
+        <textarea id="cssCode">body{
+    font-family:Arial,sans-serif;
+    padding:20px;
+}
+
+h1{
+    color:dodgerblue;
+}</textarea>
+    </section>
+
+    <section class="editor">
+        <h2>⚡ JavaScript</h2>
+        <textarea id="jsCode">console.log("Hello from JavaScript");</textarea>
+    </section>
+
+</main>
+
+<section class="preview-section">
+    <h2>👀 Preview</h2>
+    <iframe id="preview"></iframe>
+</section>
+
+<script>
+const htmlCode = document.getElementById("htmlCode");
+const cssCode = document.getElementById("cssCode");
+const jsCode = document.getElementById("jsCode");
+const preview = document.getElementById("preview");
+
+function runCode() {
+
+    const html = htmlCode.value;
+    const css = cssCode.value;
+    const js = jsCode.value;
+
+    preview.srcdoc = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <style>${css}</style>
+        </head>
+        <body>
+            ${html}
+
+            <script>
+                ${js}
+            <\/script>
+        </body>
+        </html>
+    `;
+}
+
+document.getElementById("runBtn").addEventListener("click", runCode);
+
+document.getElementById("clearBtn").addEventListener("click", () => {
+
+    htmlCode.value = "";
+    cssCode.value = "";
+    jsCode.value = "";
+
+    preview.srcdoc = "";
+});
+
+runCode();
+</script>
+
+</body>
+</html>
