@@ -6,17 +6,6 @@
 <title>💻 WebCode</title>
 
 <script src="./jszip.min.js"></script>
-<script>
-console.log("JSZip =", typeof JSZip);
-
-window.addEventListener("load", () => {
-    if (typeof JSZip === "undefined") {
-        alert("JSZip NOT loaded");
-    } else {
-        console.log("JSZip loaded successfully");
-    }
-});
-</script>
 
 <style>
 *{
@@ -32,6 +21,7 @@ window.addEventListener("load", () => {
     --border:#334155;
     --text:#f8fafc;
     --accent:#3b82f6;
+    --danger:#ef4444;
 }
 
 body.light{
@@ -52,7 +42,7 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    gap:10px;
+    gap:12px;
     padding:12px 20px;
     background:var(--card);
     border-bottom:1px solid var(--border);
@@ -60,8 +50,8 @@ body{
 }
 
 #projectName{
-    background:transparent;
     border:none;
+    background:transparent;
     color:var(--text);
     font-size:18px;
     font-weight:700;
@@ -82,6 +72,10 @@ button{
     background:var(--accent);
     color:white;
     cursor:pointer;
+}
+
+button:hover{
+    opacity:.9;
 }
 
 .workspace{
@@ -110,13 +104,13 @@ button{
 textarea{
     width:100%;
     height:350px;
-    resize:none;
+    resize:vertical;
     padding:10px;
     border-radius:8px;
     border:1px solid var(--border);
     background:var(--bg);
     color:var(--text);
-    font-family:Consolas,monospace;
+    font-family:Consolas, monospace;
 }
 
 .preview-panel{
@@ -127,20 +121,20 @@ iframe{
     width:100%;
     height:500px;
     border:none;
-    background:white;
     border-radius:8px;
+    background:#fff;
 }
 
 .stats{
-    margin-top:10px;
     font-size:13px;
     opacity:.8;
+    margin-top:10px;
 }
 
 .history{
     display:flex;
-    gap:8px;
     flex-wrap:wrap;
+    gap:8px;
     margin-top:10px;
 }
 
@@ -148,8 +142,10 @@ iframe{
     background:#475569;
 }
 
-body.light .history button{
-    background:#64748b;
+.status{
+    font-size:12px;
+    margin-left:5px;
+    opacity:.8;
 }
 
 @media(max-width:1000px){
@@ -159,16 +155,15 @@ body.light .history button{
     }
 
     textarea{
-        height:250px;
+        height:240px;
     }
 
     iframe{
-        height:400px;
+        height:380px;
     }
 }
 </style>
 </head>
-
 <body>
 
 <div class="topbar">
@@ -176,29 +171,26 @@ body.light .history button{
 <input
 id="projectName"
 type="text"
-value="💻 WebCode"
->
+value="💻 WebCode">
 
 <div class="actions">
 
 <label>
 <input
-type="checkbox"
 id="autorun"
-checked
->
+type="checkbox"
+checked>
 Auto Run
 </label>
 
+<button onclick="runCode()">▶ Run</button>
 <button onclick="saveProject()">💾 Save</button>
-
 <button onclick="exportProject()">📦 Export ZIP</button>
-
-<button onclick="importFiles()">📥 Import Files</button>
-
+<button onclick="importFiles()">📥 Import</button>
 <button onclick="toggleTheme()">🌙 Theme</button>
-
 <button onclick="fullscreenPreview()">⛶ Fullscreen</button>
+
+<span id="saveStatus" class="status"></span>
 
 </div>
 
@@ -245,20 +237,20 @@ color:dodgerblue;
 
 <iframe
 id="preview"
-sandbox="allow-scripts allow-modals"
-></iframe>
+sandbox="allow-scripts allow-modals">
+</iframe>
 
 <div
 id="stats"
-class="stats"
-></div>
+class="stats">
+</div>
 
 <h3 style="margin-top:15px;">🕒 Version History</h3>
 
 <div
 id="history"
-class="history"
-></div>
+class="history">
+</div>
 
 </div>
 
@@ -270,20 +262,42 @@ const htmlCode = document.getElementById("htmlCode");
 const cssCode = document.getElementById("cssCode");
 const jsCode = document.getElementById("jsCode");
 const preview = document.getElementById("preview");
+const projectName = document.getElementById("projectName");
+
+window.addEventListener("load", () => {
+
+    if (typeof JSZip === "undefined") {
+
+        alert(
+            "JSZip NOT loaded.\n\nMake sure jszip.min.js is beside index.html"
+        );
+
+    } else {
+
+        console.log("JSZip loaded successfully");
+
+    }
+});
 
 function updateStats(){
 
     document.getElementById("stats").innerHTML =
-    `HTML: ${htmlCode.value.length} chars |
-     CSS: ${cssCode.value.length} chars |
-     JS: ${jsCode.value.length} chars`;
+        `HTML: ${htmlCode.value.length} chars |
+         CSS: ${cssCode.value.length} chars |
+         JS: ${jsCode.value.length} chars`;
+
 }
 
 function runCode(){
 
     const html = htmlCode.value;
     const css = cssCode.value;
-    const js = jsCode.value;
+
+    const js =
+        jsCode.value.replace(
+            /<\/script>/gi,
+            "<\\/script>"
+        );
 
     preview.srcdoc = `
 <!DOCTYPE html>
@@ -302,7 +316,10 @@ ${html}
 try{
 ${js}
 }catch(error){
-document.body.innerHTML += '<pre style="color:red">'+error+'</pre>';
+document.body.innerHTML +=
+'<pre style="color:red;padding:10px;border:1px solid red;background:#fff5f5;">'
++(error.stack || error)+
+'</pre>';
 }
 <\/script>
 
@@ -311,60 +328,108 @@ document.body.innerHTML += '<pre style="color:red">'+error+'</pre>';
 `;
 
     updateStats();
+
+}
+
+function saveDraft(){
+
+    localStorage.setItem(
+        "draft-html",
+        htmlCode.value
+    );
+
+    localStorage.setItem(
+        "draft-css",
+        cssCode.value
+    );
+
+    localStorage.setItem(
+        "draft-js",
+        jsCode.value
+    );
+
+    localStorage.setItem(
+        "draft-name",
+        projectName.value
+    );
+
+    document.getElementById(
+        "saveStatus"
+    ).textContent = "Draft Saved";
+
+}
+
+function restoreDraft(){
+
+    htmlCode.value =
+        localStorage.getItem("draft-html")
+        || htmlCode.value;
+
+    cssCode.value =
+        localStorage.getItem("draft-css")
+        || cssCode.value;
+
+    jsCode.value =
+        localStorage.getItem("draft-js")
+        || jsCode.value;
+
+    projectName.value =
+        localStorage.getItem("draft-name")
+        || projectName.value;
+
 }
 
 function autoRun(){
 
-    if(document.getElementById("autorun").checked){
+    saveDraft();
+
+    if(
+        document.getElementById("autorun").checked
+    ){
         runCode();
     }
 
-    saveDraft();
 }
 
 htmlCode.addEventListener("input", autoRun);
 cssCode.addEventListener("input", autoRun);
 jsCode.addEventListener("input", autoRun);
 
-function saveDraft(){
+function getDB(){
 
-    localStorage.setItem("draft-html", htmlCode.value);
-    localStorage.setItem("draft-css", cssCode.value);
-    localStorage.setItem("draft-js", jsCode.value);
-}
+    try{
 
-function restoreDraft(){
+        return JSON.parse(
+            localStorage.getItem("webcode-db")
+        ) || {history:[]};
 
-    htmlCode.value =
-    localStorage.getItem("draft-html") || htmlCode.value;
+    }catch{
 
-    cssCode.value =
-    localStorage.getItem("draft-css") || cssCode.value;
+        return {history:[]};
 
-    jsCode.value =
-    localStorage.getItem("draft-js") || jsCode.value;
+    }
+
 }
 
 function saveProject(){
 
-    const db =
-    JSON.parse(localStorage.getItem("webcode-db")) || {
-        history:[]
-    };
+    const db = getDB();
 
     const project = {
 
-        name:document.getElementById("projectName").value,
-
+        name:projectName.value,
         html:htmlCode.value,
         css:cssCode.value,
         js:jsCode.value,
-
         timestamp:new Date().toLocaleString()
 
     };
 
     db.history.push(project);
+
+    if(db.history.length > 50){
+        db.history.shift();
+    }
 
     localStorage.setItem(
         "webcode-db",
@@ -374,148 +439,204 @@ function saveProject(){
     loadHistory();
 
     alert("Project saved");
+
 }
 
 function loadHistory(){
 
-    const historyDiv =
-    document.getElementById("history");
+    const history =
+        document.getElementById("history");
 
-    historyDiv.innerHTML = "";
+    history.innerHTML = "";
 
-    const db =
-    JSON.parse(localStorage.getItem("webcode-db")) || {
-        history:[]
-    };
+    const db = getDB();
 
-    const reversed =
-    [...db.history].reverse();
-
-    reversed.forEach(item=>{
+    [...db.history]
+    .reverse()
+    .forEach(item=>{
 
         const btn =
-        document.createElement("button");
+            document.createElement("button");
 
-        btn.textContent = item.timestamp;
+        btn.textContent =
+            item.timestamp;
 
-        btn.onclick = function(){
+        btn.onclick = () => {
 
-            document.getElementById(
-                "projectName"
-            ).value = item.name;
+            projectName.value =
+                item.name;
 
-            htmlCode.value = item.html;
-            cssCode.value = item.css;
-            jsCode.value = item.js;
+            htmlCode.value =
+                item.html;
+
+            cssCode.value =
+                item.css;
+
+            jsCode.value =
+                item.js;
 
             runCode();
+
         };
 
-        historyDiv.appendChild(btn);
+        history.appendChild(btn);
+
     });
+
 }
 
 async function exportProject(){
 
-    if(typeof JSZip === "undefined"){
-        alert("JSZip failed to load.");
-        return;
-    }
+    try{
 
-    const zip = new JSZip();
+        if(typeof JSZip === "undefined"){
 
-    const completeHTML =
+            alert("JSZip not loaded");
+            return;
+
+        }
+
+        const zip =
+            new JSZip();
+
+        const completeHTML =
 `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<title>${document.getElementById("projectName").value}</title>
+<title>${projectName.value}</title>
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
 ${htmlCode.value}
 
-<script src="script.js"></script>
+<script src="script.js"><\/script>
 
 </body>
 </html>`;
 
-    zip.file(
-        "index.html",
-        completeHTML
-    );
+        zip.file(
+            "index.html",
+            completeHTML
+        );
 
-    zip.file(
-        "style.css",
-        cssCode.value
-    );
+        zip.file(
+            "style.css",
+            cssCode.value
+        );
 
-    zip.file(
-        "script.js",
-        jsCode.value
-    );
+        zip.file(
+            "script.js",
+            jsCode.value
+        );
 
-    const blob =
-    await zip.generateAsync({
-        type:"blob"
-    });
+        const blob =
+            await zip.generateAsync({
+                type:"blob"
+            });
 
-    const a =
-    document.createElement("a");
+        const url =
+            URL.createObjectURL(blob);
 
-    a.href =
-    URL.createObjectURL(blob);
+        const a =
+            document.createElement("a");
 
-    a.download =
-    (document.getElementById("projectName").value || "project")
-    + ".zip";
+        a.href = url;
 
-    document.body.appendChild(a);
+        a.download =
+            (projectName.value || "project")
+            + ".zip";
 
-    a.click();
+        document.body.appendChild(a);
+        a.click();
 
-    document.body.removeChild(a);
+        a.remove();
 
-    URL.revokeObjectURL(a.href);
+        setTimeout(()=>{
+
+            URL.revokeObjectURL(url);
+
+        },100);
+
+    }catch(error){
+
+        alert(
+            "Export failed: " +
+            error.message
+        );
+
+        console.error(error);
+
+    }
+
 }
 
 function importFiles(){
 
     const input =
-    document.createElement("input");
+        document.createElement("input");
 
     input.type = "file";
     input.multiple = true;
     input.accept = ".html,.css,.js";
 
-    input.onchange = async function(){
+    input.onchange = async () => {
 
         const files =
-        Array.from(input.files);
+            Array.from(input.files);
 
         for(const file of files){
 
             const content =
-            await file.text();
+                await file.text();
 
-            if(file.name.toLowerCase().endsWith(".html")){
-                htmlCode.value = content;
+            if(
+                file.name
+                .toLowerCase()
+                .endsWith(".html")
+            ){
+
+                const parser =
+                    new DOMParser();
+
+                const doc =
+                    parser.parseFromString(
+                        content,
+                        "text/html"
+                    );
+
+                htmlCode.value =
+                    doc.body?.innerHTML
+                    || content;
+
             }
 
-            if(file.name.toLowerCase().endsWith(".css")){
-                cssCode.value = content;
+            if(
+                file.name
+                .toLowerCase()
+                .endsWith(".css")
+            ){
+                cssCode.value =
+                    content;
             }
 
-            if(file.name.toLowerCase().endsWith(".js")){
-                jsCode.value = content;
+            if(
+                file.name
+                .toLowerCase()
+                .endsWith(".js")
+            ){
+                jsCode.value =
+                    content;
             }
         }
 
         runCode();
+
     };
 
     input.click();
+
 }
 
 function toggleTheme(){
@@ -526,30 +647,52 @@ function toggleTheme(){
 
     localStorage.setItem(
         "theme",
-        document.body.classList.contains("light")
+        document.body.classList.contains(
+            "light"
+        )
     );
+
 }
 
 function fullscreenPreview(){
 
     if(preview.requestFullscreen){
+
         preview.requestFullscreen();
+
+    }else if(
+        preview.webkitRequestFullscreen
+    ){
+
+        preview.webkitRequestFullscreen();
+
     }
+
 }
 
-document.addEventListener("keydown", function(e){
+document.addEventListener(
+"keydown",
+function(e){
 
     if(e.ctrlKey && e.key === "s"){
+
         e.preventDefault();
         saveProject();
+
     }
 
     if(e.ctrlKey && e.key === "Enter"){
+
         e.preventDefault();
         runCode();
+
     }
 
-    if(e.ctrlKey && e.key.toLowerCase() === "l"){
+    if(
+        e.ctrlKey &&
+        e.key.toLowerCase() === "l"
+    ){
+
         e.preventDefault();
 
         htmlCode.value = "";
@@ -557,15 +700,23 @@ document.addEventListener("keydown", function(e){
         jsCode.value = "";
 
         runCode();
+
     }
+
 });
 
-if(localStorage.getItem("theme") === "true"){
-    document.body.classList.add("light");
+if(
+    localStorage.getItem("theme")
+    === "true"
+){
+    document.body.classList.add(
+        "light"
+    );
 }
 
 restoreDraft();
 loadHistory();
+updateStats();
 runCode();
 
 </script>
