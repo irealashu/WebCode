@@ -1,30 +1,41 @@
 # 💻 WebCode
 
-A lightweight, browser-based web development playground for creating, testing, saving, importing, and exporting **HTML**, **CSS**, and **JavaScript** projects.
-
-WebCode works entirely inside your browser and requires no installation, build tools, or backend services.
+A lightweight, browser-based web development playground for writing, testing, saving, and exporting **HTML**, **CSS**, and **JavaScript** projects with a live preview. Built entirely with **HTML, CSS, Vanilla JavaScript, Local Storage, and JSZip**, WebCode runs directly in the browser without requiring a backend.
 
 ---
 
 ## ✨ Features
 
-### 🧱 HTML Editor
-Write and edit HTML code in a dedicated editor panel with real-time updates.
+### 🧱 Multi-Panel Editor
+- Dedicated editors for:
+  - HTML (`index.html`)
+  - CSS (`style.css`)
+  - JavaScript (`script.js`)
+- Clean and responsive interface.
 
-### 🎨 CSS Editor
-Create and modify styles independently from HTML and JavaScript.
-
-### ⚡ JavaScript Editor
-Develop interactive functionality with instant execution in the preview window.
-
-### 👀 Live Preview
-Preview results immediately using a sandboxed iframe environment.
+### ⚡ Live Preview
+- Instantly render HTML, CSS, and JavaScript inside a sandboxed iframe.
+- Automatic preview refresh supported via Auto Run.
 
 ### 🔄 Auto Run
-Automatically updates the preview whenever code changes.
+- Automatically updates the preview while typing.
+- Can be enabled or disabled at any time.
 
 ### 💾 Draft Auto Save
-Automatically saves current work to Local Storage and restores it when WebCode is reopened.
+- Automatically saves:
+  - Project name
+  - HTML code
+  - CSS code
+  - JavaScript code
+- Stored locally using browser Local Storage.
+
+### 📂 Project Save System
+- Save project snapshots manually.
+- Preserves a history of previous versions.
+
+### 🕒 Version History
+- Stores up to **50 versions**.
+- Restore any previously saved revision with one click.
 
 ### 📦 ZIP Export
 Export projects as a ZIP package containing:
@@ -35,26 +46,32 @@ style.css
 script.js
 ```
 
-### 📥 File Import
-Import existing project files:
+Powered by **JSZip**.
 
-```text
-.html
-.css
-.js
-```
+### 📥 Import Existing Files
+Import:
 
-### 🕒 Version History
-Store project snapshots locally and restore previous versions.
+- `.html`
+- `.css`
+- `.js`
 
-### 🌙 Theme Switching
-Toggle between Dark Mode and Light Mode.
+Files are automatically loaded into their respective editors.
+
+### 🌗 Light & Dark Themes
+- Dark mode (default)
+- Light mode
+- Theme preference persists across sessions
 
 ### ⛶ Fullscreen Preview
-Open the live preview in fullscreen mode.
+Launch the preview panel in fullscreen mode for easier testing.
 
 ### 📊 Code Statistics
-Display character counts for:
+Displays:
+
+- Character count
+- Line count
+
+For:
 
 - HTML
 - CSS
@@ -64,173 +81,175 @@ Display character counts for:
 
 | Shortcut | Action |
 |-----------|---------|
-| Ctrl + Enter | Run Code |
 | Ctrl + S | Save Project |
+| Ctrl + Enter | Run Code |
 | Ctrl + L | Clear Editors |
 
 ---
 
-# 📂 Project Structure
+## 📁 Project Structure
 
 ```text
 WebCode/
 │
 ├── index.html
 ├── jszip.min.js
-├── README.md
-└── LICENSE
+└── README.md
 ```
 
 ---
 
-# 🚀 Installation
+## 🚀 Getting Started
 
-## Requirements
+### 1. Download JSZip
 
-- Modern web browser
-- JSZip library
+WebCode requires JSZip for ZIP export functionality.
 
-Files required:
-
-```text
-index.html
-jszip.min.js
-```
-
-Place both files in the same directory:
+Place the library beside `index.html`:
 
 ```text
-project/
+WebCode/
 │
 ├── index.html
 └── jszip.min.js
 ```
 
----
+Download JSZip from:
 
-# ▶️ Getting Started
+https://stuk.github.io/jszip/
 
-### Step 1
+### 2. Open WebCode
 
-Download or clone the project.
-
-### Step 2
-
-Verify the following files exist:
-
-```text
-index.html
-jszip.min.js
-```
-
-### Step 3
-
-Open:
+Simply open:
 
 ```text
 index.html
 ```
 
-in any supported browser.
+in a modern browser.
 
-No local server is required.
-
----
-
-# 📖 Usage
-
-## Creating a Project
-
-1. Enter HTML in the HTML editor.
-2. Add styles in the CSS editor.
-3. Write JavaScript in the JS editor.
-4. View changes instantly in Live Preview.
+No server setup is required.
 
 ---
 
-## Saving a Project
+## 🖥️ How It Works
 
-Click:
+The preview window dynamically generates an HTML document and injects the user's HTML, CSS, and JavaScript:
 
-```text
-💾 Save
+```javascript
+preview.srcdoc = `
+<!DOCTYPE html>
+<html>
+<head>
+<style>${css}</style>
+</head>
+<body>
+${html}
+<script>
+${js}
+<\/script>
+</body>
+</html>
+`;
 ```
 
-or press:
-
-```text
-Ctrl + S
-```
-
-Saved projects appear in the Version History panel.
+Any runtime JavaScript errors are displayed directly in the preview panel.
 
 ---
 
-## Running Code
+## 💾 Local Storage Structure
 
-Click:
+### Draft Storage
 
 ```text
-▶ Run
+draft-html
+draft-css
+draft-js
+draft-name
 ```
 
-or press:
+### Project Database
 
 ```text
-Ctrl + Enter
-```
-
----
-
-## Clearing Editors
-
-Press:
-
-```text
-Ctrl + L
-```
-
-to clear all code editors.
-
----
-
-## Importing Files
-
-Click:
-
-```text
-📥 Import
-```
-
-Supported file types:
-
-```text
-.html
-.css
-.js
-```
-
-The imported content is automatically loaded into the corresponding editor.
-
----
-
-## Exporting Projects
-
-Click:
-
-```text
-📦 Export ZIP
-```
-
-The ZIP file will contain:
-
-```text
-index.html
-style.css
-script.js
+webcode-db
 ```
 
 Example:
+
+```json
+{
+  "history": [
+    {
+      "name": "My Project",
+      "html": "<h1>Hello</h1>",
+      "css": "body{}",
+      "js": "console.log('Hello');",
+      "timestamp": "2026-01-01"
+    }
+  ]
+}
+```
+
+---
+
+## 🔒 Security Features
+
+### Sandboxed Preview
+
+```html
+<iframe
+sandbox="allow-scripts allow-modals allow-forms allow-popups">
+</iframe>
+```
+
+This helps isolate executed user scripts from the editor itself.
+
+### Script Injection Protection
+
+User JavaScript is sanitized before injection:
+
+```javascript
+js.replace(
+    /<\/script>/gi,
+    "<\\/script>"
+);
+```
+
+This prevents accidental script tag termination.
+
+---
+
+## 🌗 Theme System
+
+### Dark Mode
+
+```css
+:root{
+    --bg:#0f172a;
+    --card:#1e293b;
+    --border:#334155;
+    --text:#f8fafc;
+}
+```
+
+### Light Mode
+
+```css
+body.light{
+    --bg:#f8fafc;
+    --card:#ffffff;
+    --border:#d1d5db;
+    --text:#111827;
+}
+```
+
+The selected theme is automatically saved in Local Storage.
+
+---
+
+## 📦 Export Example
+
+Generated ZIP:
 
 ```text
 MyProject.zip
@@ -240,194 +259,143 @@ MyProject.zip
 └── script.js
 ```
 
----
-
-# 💾 Local Storage
-
-WebCode stores data locally in the browser.
-
-## Storage Keys
-
-| Key | Description |
-|------|-------------|
-| draft-html | HTML draft |
-| draft-css | CSS draft |
-| draft-js | JavaScript draft |
-| draft-name | Project name |
-| theme | Theme preference |
-| webcode-db | Saved project history |
-
-No project data is transmitted to any external server.
-
----
-
-# 🌙 Theme Support
-
-WebCode includes:
-
-- Dark Theme
-- Light Theme
-
-Theme preference is automatically saved and restored.
-
----
-
-# 🔒 Security
-
-The preview uses a sandboxed iframe:
+Generated HTML:
 
 ```html
-<iframe sandbox="allow-scripts allow-modals">
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- User HTML -->
+
+    <script src="script.js"></script>
+</body>
+</html>
 ```
 
-Benefits:
-
-- Isolates user code
-- Prevents direct interaction with the editor page
-- Reduces unintended script access
+The exported project works independently outside of WebCode.
 
 ---
 
-# 🛠 Technologies Used
+## 📱 Responsive Design
 
-### HTML5
+Desktop layout:
 
-Application structure and user interface.
+```css
+grid-template-columns: repeat(3, 1fr);
+```
 
-### CSS3
+Mobile layout:
 
-Responsive layouts and theming.
+```css
+@media(max-width:1000px){
+    .editors{
+        grid-template-columns:1fr;
+    }
+}
+```
 
-### JavaScript (ES6+)
-
-Editor functionality, live preview, storage, and export features.
-
-### JSZip
-
-ZIP archive generation for project export.
-
----
-
-# 🌐 Browser Compatibility
-
-Recommended browsers:
-
-- Google Chrome
-- Microsoft Edge
-- Mozilla Firefox
-- Brave Browser
-- Opera
-
-Latest browser versions are recommended.
+The editor panels automatically stack vertically on smaller screens.
 
 ---
 
-# ✅ Included Features
+## 🔄 Startup Lifecycle
 
-- Live HTML/CSS/JS Preview
-- Auto Run
-- Theme Switching
-- Draft Auto Save
-- Local Storage Persistence
-- ZIP Export
-- Project Import
-- Version History
-- Character Statistics
-- Fullscreen Preview
-- Keyboard Shortcuts
-- JSZip Integration
-- Error Handling
+On launch, WebCode performs the following:
+
+1. Restore saved theme
+2. Restore draft content
+3. Load project history
+4. Refresh statistics
+5. Execute preview
+
+```javascript
+restoreDraft();
+loadHistory();
+updateStats();
+runCode();
+```
 
 ---
 
-# 🔮 Planned Enhancements
+## 🛠️ Future Enhancement Ideas
 
-Future improvements may include:
+Potential upgrades include:
 
-- Syntax Highlighting
-- Code Formatting
-- Search & Replace
-- Multiple Tabs
-- File Explorer
-- IndexedDB Storage
-- Project Templates
+- Syntax highlighting
+- Code formatter
+- Console output panel
+- Multi-file project support
+- Project templates
+- GitHub integration
 - Progressive Web App (PWA)
-- GitHub Integration
-- Mobile Layout Optimization
+- AI-assisted coding tools
 
 ---
 
-# 🐞 Troubleshooting
+## 🔧 Built With
 
-## JSZip Not Loaded
+- HTML5
+- CSS3
+- Vanilla JavaScript
+- Local Storage API
+- Fullscreen API
+- Blob API
+- JSZip
 
-Ensure:
+---
+
+## ✅ Browser Compatibility
+
+| Browser | Supported |
+|----------|-----------|
+| Google Chrome | ✅ |
+| Microsoft Edge | ✅ |
+| Mozilla Firefox | ✅ |
+| Safari | ✅ |
+
+Recommended requirements:
+
+- ES6 Support
+- Local Storage
+- Fullscreen API
+- Blob API
+
+---
+
+## 📜 License
+
+Copyright © 2026
+
+Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this project except in compliance with the License.
+
+You may obtain a copy of the License at:
 
 ```text
-jszip.min.js
+http://www.apache.org/licenses/LICENSE-2.0
 ```
 
-is located in the same folder as:
+Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS**, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 
-```text
-index.html
-```
-
-Correct structure:
-
-```text
-project/
-│
-├── index.html
-└── jszip.min.js
-```
+See the License for the specific language governing permissions and limitations under the License.
 
 ---
 
-## ZIP Export Not Working
+## ❤️ About WebCode
 
-Verify:
+WebCode is designed as a lightweight browser IDE for rapid front-end development and experimentation. It provides real-time feedback, automatic persistence, version history, import/export functionality, and theme customization, all without requiring any backend services.
 
-- JSZip library exists
-- Browser allows downloads
-- No JavaScript errors are present
+Perfect for:
 
----
-
-## Preview Not Updating
-
-Check:
-
-- Auto Run checkbox is enabled
-- Browser console for script errors
-- JavaScript syntax validity
+- Learning HTML, CSS, and JavaScript
+- Rapid prototyping
+- Classroom demonstrations
+- Front-end experimentation
+- Offline development
 
 ---
 
-# 📄 License
-
-See the included:
-
-```text
-LICENSE
-```
-
-file for licensing terms and conditions.
-
----
-
-# 👨‍💻 About
-
-WebCode is a lightweight browser-based coding playground designed for:
-
-- Learning Web Development
-- Prototyping Ideas
-- Frontend Experimentation
-- Offline Coding Practice
-- Educational Use
-
-No installation, compilation, or server setup required.
-
----
-
-**Happy Coding! 🚀**
+### 🎉 Happy Coding with WebCode!
