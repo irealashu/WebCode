@@ -442,6 +442,7 @@ function autoRun(){
         },300);
 }
 
+projectName.addEventListener("input", autoRun);
 htmlCode.addEventListener("input", autoRun);
 cssCode.addEventListener("input", autoRun);
 jsCode.addEventListener("input", autoRun);
@@ -548,29 +549,18 @@ function loadHistory(){
 
 }
 
-function clearHistory()
-document
-    .getElementById("clearHistoryBtn")
-    .addEventListener(
-        "click",
-        clearHistory
-    );
-{
-
-    if(
-        !confirm(
-            "Delete all saved versions?"
-        )
-    ){
+function clearHistory() {
+    if (!confirm("Delete all saved versions?")) {
         return;
     }
 
-    localStorage.removeItem(
-        "webcode-db"
-    );
-
+    localStorage.removeItem("webcode-db");
     loadHistory();
 }
+
+document
+    .getElementById("clearHistoryBtn")
+    .addEventListener("click", clearHistory);
 
 async function exportProject(){
 
@@ -724,17 +714,14 @@ const themeBtn =
         "themeBtn"
     );
 
-function updateThemeButton()
-themeBtn.addEventListener("click", toggleTheme);
-{
-
+function updateThemeButton() {
     themeBtn.textContent =
-        document.body.classList.contains(
-            "light"
-        )
-        ? "☀ Dark"
-        : "🌙 Light";
+        document.body.classList.contains("light")
+            ? "☀ Dark"
+            : "🌙 Light";
 }
+
+themeBtn.addEventListener("click", toggleTheme);
 
 function toggleTheme(){
 
