@@ -198,7 +198,7 @@ Auto Run
 <button onclick="saveProject()">💾 Save</button>
 <button onclick="exportProject()">📦 Export ZIP</button>
 <button onclick="importFiles()">📥 Import</button>
-<button onclick="toggleTheme()">🌙 Theme</button>
+<button id="themeBtn">🌙 Light</button>
 <button onclick="fullscreenPreview()">⛶ Fullscreen</button>
 
 <span id="saveStatus" class="status"></span>
@@ -262,6 +262,10 @@ class="stats">
 id="history"
 class="history">
 </div>
+
+<button id="clearHistoryBtn">
+🗑 Clear History
+</button>
 
 </div>
 
@@ -378,11 +382,23 @@ function saveDraft(){
         projectName.value
     );
 
-    document.getElementById(
-        "saveStatus"
-    ).textContent = "Draft Saved";
+    const status =
+        document.getElementById(
+            "saveStatus"
+        );
 
-}
+    status.textContent =
+        "Draft Saved";
+
+    clearTimeout(
+        saveDraft._timer
+    );
+
+    saveDraft._timer =
+        setTimeout(()=>{
+            status.textContent="";
+        },2000);
+}a
 
 function restoreDraft(){
 
@@ -404,16 +420,26 @@ function restoreDraft(){
 
 }
 
+let autoSaveTimer;
+
 function autoRun(){
 
-    saveDraft();
+    clearTimeout(autoSaveTimer);
 
-    if(
-        document.getElementById("autorun").checked
-    ){
-        runCode();
-    }
+    autoSaveTimer =
+        setTimeout(()=>{
 
+            saveDraft();
+
+            if(
+                document.getElementById(
+                    "autorun"
+                ).checked
+            ){
+                runCode();
+            }
+
+        },300);
 }
 
 htmlCode.addEventListener("input", autoRun);
@@ -442,15 +468,28 @@ function saveProject(){
 
     const project = {
 
-        name:projectName.value,
-        html:htmlCode.value,
-        css:cssCode.value,
-        js:jsCode.value,
-        timestamp:new Date().toLocaleString()
-
+        name: projectName.value,
+        html: htmlCode.value,
+        css: cssCode.value,
+        js: jsCode.value,
+        timestamp:
+            new Date()
+            .toLocaleString()
     };
 
-    db.history.push(project);
+    const last =
+        db.history[
+            db.history.length - 1
+        ];
+
+    if(
+        !last ||
+        last.html !== project.html ||
+        last.css !== project.css ||
+        last.js !== project.js
+    ){
+        db.history.push(project);
+    }
 
     if(db.history.length > 50){
         db.history.shift();
@@ -463,8 +502,7 @@ function saveProject(){
 
     loadHistory();
 
-    alert("Project saved");
-
+    alert("Project Saved");
 }
 
 function loadHistory(){
@@ -508,6 +546,23 @@ function loadHistory(){
 
     });
 
+}
+
+function clearHistory(){
+
+    if(
+        !confirm(
+            "Delete all saved versions?"
+        )
+    ){
+        return;
+    }
+
+    localStorage.removeItem(
+        "webcode-db"
+    );
+
+    loadHistory();
 }
 
 async function exportProject(){
@@ -564,14 +619,15 @@ ${htmlCode.value}
         const url =
             URL.createObjectURL(blob);
 
-        const a =
-            document.createElement("a");
+        const safeName =
+(projectName.value || "project")
+.replace(
+    /[^a-z0-9_\- ]/gi,
+    "_"
+);
 
-        a.href = url;
-
-        a.download =
-            (projectName.value || "project")
-            + ".zip";
+a.download =
+safeName + ".zip";
 
         document.body.appendChild(a);
         a.click();
@@ -600,56 +656,56 @@ ${htmlCode.value}
 function importFiles(){
 
     const input =
-        document.createElement("input");
+        document.createElement(
+            "input"
+        );
 
     input.type = "file";
-    input.multiple = true;
-    input.accept = ".html,.css,.js";
 
-    input.onchange = async () => {
+    input.multiple = true;
+
+    input.accept =
+        ".html,.css,.js";
+
+    input.onchange =
+    async ()=>{
 
         const files =
-            Array.from(input.files);
+            [...input.files];
 
-        for(const file of files){
+        for(
+            const file of files
+        ){
 
             const content =
                 await file.text();
 
-            if(
+            const name =
                 file.name
-                .toLowerCase()
-                .endsWith(".html")
+                .toLowerCase();
+
+            if(
+                name.endsWith(
+                    ".html"
+                )
             ){
-
-                const parser =
-                    new DOMParser();
-
-                const doc =
-                    parser.parseFromString(
-                        content,
-                        "text/html"
-                    );
-
                 htmlCode.value =
-                    doc.body?.innerHTML
-                    || content;
-
+                    content;
             }
 
-            if(
-                file.name
-                .toLowerCase()
-                .endsWith(".css")
+            else if(
+                name.endsWith(
+                    ".css"
+                )
             ){
                 cssCode.value =
                     content;
             }
 
-            if(
-                file.name
-                .toLowerCase()
-                .endsWith(".js")
+            else if(
+                name.endsWith(
+                    ".js"
+                )
             ){
                 jsCode.value =
                     content;
@@ -657,11 +713,24 @@ function importFiles(){
         }
 
         runCode();
-
     };
 
     input.click();
+}
 
+const themeBtn =
+    document.getElementById(
+        "themeBtn"
+    );
+
+function updateThemeButton(){
+
+    themeBtn.textContent =
+        document.body.classList.contains(
+            "light"
+        )
+        ? "☀ Dark"
+        : "🌙 Light";
 }
 
 function toggleTheme(){
@@ -677,6 +746,7 @@ function toggleTheme(){
         )
     );
 
+    updateThemeButton();
 }
 
 function fullscreenPreview(){
@@ -731,14 +801,16 @@ function(e){
 });
 
 if(
-    localStorage.getItem("theme")
-    === "true"
+    localStorage.getItem(
+        "theme"
+    ) === "true"
 ){
     document.body.classList.add(
         "light"
     );
 }
 
+updateThemeButton();
 restoreDraft();
 loadHistory();
 updateStats();
