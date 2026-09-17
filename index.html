@@ -14,7 +14,18 @@
     box-sizing:border-box;
     font-family:Segoe UI,sans-serif;
 }
+    
+textarea:focus,
+button:focus,
+input:focus{
+    outline:2px solid var(--accent);
+    outline-offset:2px;
+}
 
+label{
+    cursor:pointer;
+}
+    
 :root{
     --bg:#0f172a;
     --card:#1e293b;
@@ -237,7 +248,7 @@ color:dodgerblue;
 
 <iframe
 id="preview"
-sandbox="allow-scripts allow-modals">
+sandbox="allow-scripts allow-modals allow-forms allow-popups">
 </iframe>
 
 <div
@@ -279,13 +290,18 @@ window.addEventListener("load", () => {
     }
 });
 
+function countLines(text){
+    return text.split("\n").length;
+}
+
 function updateStats(){
-
-    document.getElementById("stats").innerHTML =
-        `HTML: ${htmlCode.value.length} chars |
-         CSS: ${cssCode.value.length} chars |
-         JS: ${jsCode.value.length} chars`;
-
+    document.getElementById("stats").innerHTML = `
+        HTML: ${htmlCode.value.length} chars | ${countLines(htmlCode.value)} lines
+        <br>
+        CSS: ${cssCode.value.length} chars | ${countLines(cssCode.value)} lines
+        <br>
+        JS: ${jsCode.value.length} chars | ${countLines(jsCode.value)} lines
+    `;
 }
 
 function runCode(){
@@ -293,34 +309,44 @@ function runCode(){
     const html = htmlCode.value;
     const css = cssCode.value;
 
-    const js =
-        jsCode.value.replace(
-            /<\/script>/gi,
-            "<\\/script>"
-        );
+    const js = jsCode.value.replace(
+        /<\/script>/gi,
+        "<\\/script>"
+    );
 
     preview.srcdoc = `
 <!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
-<style>
-${css}
-</style>
+<style>${css}</style>
 </head>
 <body>
 
 ${html}
 
 <script>
+
 try{
+
 ${js}
+
 }catch(error){
-document.body.innerHTML +=
-'<pre style="color:red;padding:10px;border:1px solid red;background:#fff5f5;">'
-+(error.stack || error)+
-'</pre>';
+
+    const pre =
+        document.createElement("pre");
+
+    pre.style.color = "red";
+    pre.style.padding = "10px";
+    pre.style.border = "1px solid red";
+    pre.style.background = "#fff5f5";
+
+    pre.textContent =
+        error.stack || error;
+
+    document.body.appendChild(pre);
 }
+
 <\/script>
 
 </body>
@@ -328,7 +354,6 @@ document.body.innerHTML +=
 `;
 
     updateStats();
-
 }
 
 function saveDraft(){
