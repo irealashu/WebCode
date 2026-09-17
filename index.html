@@ -398,7 +398,7 @@ function saveDraft(){
         setTimeout(()=>{
             status.textContent="";
         },2000);
-}a
+}
 
 function restoreDraft(){
 
@@ -548,7 +548,14 @@ function loadHistory(){
 
 }
 
-function clearHistory(){
+function clearHistory()
+document
+    .getElementById("clearHistoryBtn")
+    .addEventListener(
+        "click",
+        clearHistory
+    );
+{
 
     if(
         !confirm(
@@ -616,29 +623,23 @@ ${htmlCode.value}
                 type:"blob"
             });
 
-        const url =
-            URL.createObjectURL(blob);
+        const url = URL.createObjectURL(blob);
 
-        const safeName =
+const safeName =
 (projectName.value || "project")
-.replace(
-    /[^a-z0-9_\- ]/gi,
-    "_"
-);
+.replace(/[^a-z0-9_\- ]/gi, "_");
 
-a.download =
-safeName + ".zip";
+const a = document.createElement("a");
+a.href = url;
+a.download = safeName + ".zip";
 
-        document.body.appendChild(a);
-        a.click();
+document.body.appendChild(a);
+a.click();
+a.remove();
 
-        a.remove();
-
-        setTimeout(()=>{
-
-            URL.revokeObjectURL(url);
-
-        },100);
+setTimeout(() => {
+    URL.revokeObjectURL(url);
+}, 100);
 
     }catch(error){
 
@@ -723,7 +724,9 @@ const themeBtn =
         "themeBtn"
     );
 
-function updateThemeButton(){
+function updateThemeButton()
+themeBtn.addEventListener("click", toggleTheme);
+{
 
     themeBtn.textContent =
         document.body.classList.contains(
