@@ -198,8 +198,8 @@ Auto Run
 <button onclick="saveProject()">💾 Save</button>
 <button onclick="exportProject()">📦 Export ZIP</button>
 <button onclick="importFiles()">📥 Import</button>
-<button id="themeBtn">🌙 Light</button>
-<button onclick="fullscreenPreview()">⛶ Fullscreen</button>
+<button id="themeBtn">☀ Day</button>
+<button onclick="fullscreenPreview()">⛶ Full Preview</button>
 
 <span id="saveStatus" class="status"></span>
 
@@ -717,8 +717,8 @@ const themeBtn =
 function updateThemeButton() {
     themeBtn.textContent =
         document.body.classList.contains("light")
-            ? "☀ Dark"
-            : "🌙 Light";
+            ? "🌙 Night"
+            : "☀ Day";
 }
 
 themeBtn.addEventListener("click", toggleTheme);
