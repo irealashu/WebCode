@@ -112,6 +112,9 @@ Full UI localization for 10 languages:
 
 ```text
 WebCode/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml # GitHub Actions automated GitHub Pages deployment workflow
 ├── index.html         # Main IDE application markup, layout structure & dialogs
 ├── styles.css         # Complete IDE styling, theme variables, Activity Bar & split views
 ├── app.js             # Core IDE engine, runtimes (Web, Python Wasm, SQL, Markdown), i18n
@@ -119,6 +122,15 @@ WebCode/
 ├── metadata.json      # Platform application manifest & capabilities
 └── README.md          # Comprehensive documentation and feature guide
 ```
+
+---
+
+## 🚀 Deployment & GitHub Pages
+
+WebCode is zero-configuration static web software ready for immediate publishing:
+
+- **Automated GitHub Pages CI/CD**: Pushing to the `main` or `master` branch triggers `.github/workflows/deploy.yml` to automatically build and deploy your WebCode IDE instance live to GitHub Pages.
+- **Local / Self-Hosted**: Open `index.html` in any browser or serve with any static web server (Nginx, Caddy, Vercel, Netlify, Cloudflare Pages).
 
 ---
 
