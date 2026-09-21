@@ -19,9 +19,11 @@ WebCode is a comprehensive, client-side in-browser Integrated Development Enviro
 - **Interactive REPL**: Execute single Python statements directly through the terminal command bar.
 
 ### 🗄️ 3. SQL Relational Database Engine (AlaSQL)
-- **In-Memory SQL Execution**: Execute `CREATE TABLE`, `INSERT`, `SELECT`, `JOIN`, `GROUP BY`, and aggregation queries.
-- **Tabular Data Viewer**: Query results are formatted into an interactive data grid with sticky headers.
-- **1-Click JSON Export**: Download raw SQL query result sets as formatted `.json` files.
+- **In-Memory SQL Execution**: Execute `CREATE TABLE`, `INSERT`, `SELECT`, `JOIN`, `GROUP BY`, and aggregation queries in browser memory.
+- **High-Performance Paginated Viewer**: Zero-lag rendering with virtualized paging (10, 25, 50, 100 rows per page), preventing browser freezing even on large datasets.
+- **Instant Search & Column Sorting**: Filter results in real-time by search query and click table headers to sort ascending or descending.
+- **Dual Export (JSON & CSV)**: 1-click download of query result sets as formatted `.json` or `.csv` files.
+- **Execution Diagnostics**: Millisecond execution timer (`execTime`) and row count pills.
 
 ### 📝 4. Markdown Document Renderer
 - **GitHub-Flavored Markdown (GFM)**: Live rendered preview for documentation, notes, and README files.
@@ -31,7 +33,19 @@ WebCode is a comprehensive, client-side in-browser Integrated Development Enviro
 
 ## ✨ Full Feature Overview
 
+### ↔️ Resizable Workspace & Split Panes
+- **Interactive Splitter**: Drag the center divider to freely adjust the balance between the Code Editor and Live Preview pane (from 15% to 85% width).
+- **Double-Click Reset**: Double-click the splitter to instantly snap back to an equal 50/50 balance.
+- **Resizable Bottom Panel**: Drag the horizontal divider above the Terminal and SQL Viewer to smoothly adjust drawer height.
+- **Persistent Layouts**: Custom splitter proportions and panel heights are automatically preserved in local storage.
+- **Zero-Flicker Dragging**: Iframe pointer events are temporarily muted during resizing to ensure butter-smooth 60fps drag interactions without stutter.
+
 ### 📁 Multi-File Project Workspace & Tree
+- **Clean Interactive Start**: Files are not forced or automatically pre-loaded upon opening. Users choose what they want to create directly from an interactive environment welcome screen (Web HTML/JS, Python 3, SQL Database, Markdown, React 18, or Blank File).
+- **Flexible File Renaming**: Rename any project file with full extension and duplicate checking:
+  - Inline in the File Explorer with the pencil icon (✏️) or double-clicking the file name.
+  - Double-clicking any active open tab.
+  - Pressing `F2` or triggering "Rename Current File" via the Command Palette.
 - Create, rename, edit, and delete any number of project files (`.html`, `.css`, `.js`, `.jsx`, `.py`, `.sql`, `.md`, `.json`).
 - Tabbed editor bar with active tab indicators and quick tab closing.
 - Breadcrumb bar with dynamic file stats (Cursor line, column, and total line count).
@@ -97,6 +111,8 @@ Full UI localization for 10 languages:
 | `Ctrl + Enter` / `Cmd + Enter` | **Run Active File / Project** |
 | `Ctrl + S` / `Cmd + S` | **Save Project Snapshot** |
 | `Ctrl + Shift + P` / `Cmd + Shift + P` | **Open Command Palette** |
+| `F2` | **Rename Active File** |
+| `Alt + Shift + N` | **New Project (Clean Start & Choose Environment)** |
 | `Alt + N` | **Create New File** |
 | `Ctrl + 1` | **Switch to File Explorer** |
 | `Ctrl + 2` | **Switch to Search** |

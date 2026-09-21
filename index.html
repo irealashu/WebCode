@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WebCode - Universal IDE</title>
-  <meta name="description" content="Universal in-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, command palette, DevTools, and export.">
-  <meta property="og:title" content="WebCode - Universal IDE">
-  <meta property="og:description" content="Universal in-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, command palette, DevTools, and export.">
+  <title>WebCode</title>
+  <meta name="description" content="In-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, DevTools, and export.">
+  <meta property="og:title" content="WebCode">
+  <meta property="og:description" content="In-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, DevTools, and export.">
 
-  <!-- Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <!-- Fonts: Plus Jakarta Sans, JetBrains Mono, Fira Code, Source Code Pro, Roboto Mono, Inconsolata -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Inconsolata:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;500;600;700&family=Source+Code+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <!-- CodeMirror 5 Core & Modes via fast jsDelivr CDN with unpkg fallback -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/lib/codemirror.min.css">
@@ -27,6 +27,9 @@
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/mode/gfm/gfm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/closebrackets.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/codemirror@5.65.16/addon/edit/matchbrackets.min.js"></script>
+
+  <!-- Instant Client-side Babel Standalone Transpiler (for zero-latency JSX previews) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.4/babel.min.js" async></script>
 
   <!-- CDN Fallback Controller -->
   <script>
@@ -55,71 +58,47 @@
     <div class="brand-wrapper">
       <div class="brand-icon" id="brandLogo">⚡</div>
       <span class="brand-name">WebCode</span>
-      <input type="text" id="projectTitle" class="project-title-input" value="💻 My Project" title="Project Name">
-      <span class="runtime-badge" id="runtimeBadge">Web Engine</span>
+      <div class="project-title-wrapper" title="Click to rename project">
+        <input type="text" id="projectTitle" class="project-title-input" value="My Project" spellcheck="false" title="Project Name">
+      </div>
     </div>
 
     <div class="topbar-center">
-      <button class="btn btn-primary" id="btnRunCode" onclick="runActiveFile()">
-        <span>▶</span>
-        <span data-i18n="run">Run</span>
+      <button class="btn btn-primary btn-run" id="btnRunCode" onclick="runActiveFile()" title="Execute Active File (Ctrl+Enter / Cmd+Enter)">
+        <span class="btn-icon">▶</span>
+        <span>Run</span>
+        <span class="kbd-hint">Ctrl+↵</span>
       </button>
 
-      <button class="btn" id="btnSaveSnapshot" onclick="saveProjectSnapshot()">
+      <button class="btn btn-live-toggle" id="btnLiveToggle" onclick="toggleLiveReload()" title="Auto-refresh preview on code edits">
+        <span class="live-dot"></span>
+        <span id="liveToggleText">Live Sync</span>
+      </button>
+
+      <button class="btn" id="btnSaveSnapshot" onclick="saveProjectSnapshot()" title="Save Workspace Snapshot (Ctrl+S)">
         <span>💾</span>
-        <span data-i18n="save">Save</span>
+        <span>Save</span>
       </button>
 
-      <button class="btn" id="btnOpenTemplates" onclick="openTemplatesModal()">
+      <button class="btn" id="btnOpenTemplates" onclick="openTemplatesModal()" title="Browse Starter Templates">
         <span>📋</span>
-        <span data-i18n="templates">Templates</span>
-      </button>
-
-      <button class="btn" id="btnCommandPalette" onclick="toggleCommandPalette()" title="Command Palette (Ctrl+Shift+P)">
-        <span>⌨️</span>
-        <span data-i18n="commandPalette">Commands</span>
+        <span>Templates</span>
       </button>
     </div>
 
     <div class="topbar-actions">
       <!-- Layout Switcher -->
-      <div class="btn-group" id="layoutGroup">
-        <button class="btn-tab active" data-layout="split" onclick="setIdeLayout('split')" title="Split View">◫</button>
-        <button class="btn-tab" data-layout="code-only" onclick="setIdeLayout('code-only')" title="Code Only">▯</button>
-        <button class="btn-tab" data-layout="preview-only" onclick="setIdeLayout('preview-only')" title="Output Only">▭</button>
+      <div class="btn-group" id="layoutGroup" title="Workspace Layout">
+        <button class="btn-tab active" data-layout="split" onclick="setIdeLayout('split')" title="Split View (Editor & Output)">◫ Split</button>
+        <button class="btn-tab" data-layout="code-only" onclick="setIdeLayout('code-only')" title="Editor Only">▯ Code</button>
+        <button class="btn-tab" data-layout="preview-only" onclick="setIdeLayout('preview-only')" title="Output Only">▭ Output</button>
       </div>
 
-      <!-- Export & Share -->
+      <!-- Quick Actions -->
       <button class="btn btn-sm" id="btnExportZip" onclick="exportProjectZip()" title="Export ZIP Archive">
         <span>📦</span>
-        <span data-i18n="exportZip">ZIP</span>
+        <span>Export ZIP</span>
       </button>
-
-      <button class="btn btn-sm" id="btnShareLink" onclick="copyShareUrl()" title="Share Link">
-        <span>🔗</span>
-      </button>
-
-      <!-- Language Switcher (10 languages) -->
-      <select class="custom-select" id="langSelector" onchange="setIdeLanguage(this.value)">
-        <option value="en">🇺🇸 EN</option>
-        <option value="es">🇪🇸 ES</option>
-        <option value="fr">🇫🇷 FR</option>
-        <option value="de">🇩🇪 DE</option>
-        <option value="zh">🇨🇳 中文</option>
-        <option value="ja">🇯🇵 日本語</option>
-        <option value="hi">🇮🇳 हिन्दी</option>
-        <option value="pt">🇧🇷 PT</option>
-        <option value="ru">🇷🇺 RU</option>
-        <option value="ar">🇸🇦 العربية</option>
-      </select>
-
-      <!-- Theme Switcher -->
-      <select class="custom-select" id="themeSelector" onchange="setIdeTheme(this.value)">
-        <option value="midnight">🌙 Midnight</option>
-        <option value="light">☀️ Light</option>
-        <option value="dracula">🧛 Dracula</option>
-        <option value="monokai">🎨 Monokai</option>
-      </select>
     </div>
   </header>
 
@@ -129,25 +108,20 @@
     <!-- Activity Bar (VS Code Style Left Column) -->
     <nav class="activity-bar" id="activityBar" aria-label="Activity Bar">
       <div class="activity-icons-top">
-        <button class="activity-btn active" data-view="explorer" onclick="switchSidebarView('explorer')" title="Files Explorer" id="activityExplorerBtn">
-          📁
+        <button class="activity-btn active" data-view="explorer" onclick="switchSidebarView('explorer')" title="Project Files (Explorer)" id="activityExplorerBtn">
+          <span class="activity-icon">📁</span>
         </button>
-        <button class="activity-btn" data-view="search" onclick="switchSidebarView('search')" title="Search in Files" id="activitySearchBtn">
-          🔍
-        </button>
-        <button class="activity-btn" data-view="packages" onclick="switchSidebarView('packages')" title="Packages & CDNs" id="activityPackagesBtn">
-          📦
-        </button>
-        <button class="activity-btn" data-view="tools" onclick="switchSidebarView('tools')" title="Developer Toolbox" id="activityToolsBtn">
-          🛠️
+        <button class="activity-btn" data-view="packages" onclick="switchSidebarView('packages')" title="Packages & CDNs (Live Integration)" id="activityPackagesBtn">
+          <span class="activity-icon">📦</span>
+          <span class="activity-badge" id="activityPackagesBadge" style="display:none;">0</span>
         </button>
         <button class="activity-btn" data-view="history" onclick="switchSidebarView('history')" title="Snapshots & History" id="activityHistoryBtn">
-          🕒
+          <span class="activity-icon">🕒</span>
         </button>
       </div>
       <div class="activity-icons-bottom">
-        <button class="activity-btn" data-view="settings" onclick="switchSidebarView('settings')" title="IDE Settings" id="activitySettingsBtn">
-          ⚙️
+        <button class="activity-btn" data-view="settings" onclick="switchSidebarView('settings')" title="IDE Settings & Preferences" id="activitySettingsBtn">
+          <span class="activity-icon">⚙️</span>
         </button>
       </div>
     </nav>
@@ -156,11 +130,17 @@
     <aside class="sidebar-panel" id="sidebarPanel" data-current-view="explorer">
       <div class="sidebar-header" id="sidebarHeader">
         <span id="sidebarHeaderTitle" data-i18n="filesTitle">PROJECT FILES</span>
-        <div class="file-tree-actions">
+        <div class="file-tree-actions" id="sidebarHeaderActions">
           <button class="tree-action-btn" onclick="promptCreateNewFile()" title="New File" id="btnNewFileTree">＋</button>
+          <button class="tree-action-btn" onclick="togglePinSidebar()" title="Pin / Unpin Sidebar (Hover Mode default)" id="btnPinSidebar">📌</button>
         </div>
       </div>
       <div class="sidebar-content" id="sidebarContentArea">
+        <div class="explorer-search-box" id="explorerSearchBox">
+          <span class="explorer-search-icon">🔍</span>
+          <input type="text" id="explorerSearchInput" class="explorer-search-input" placeholder="Search files..." oninput="handleExplorerSearch(this.value)">
+          <button type="button" class="explorer-search-clear" id="explorerSearchClearBtn" onclick="clearExplorerSearch()" title="Clear search">✕</button>
+        </div>
         <div class="file-list" id="fileTreeList"></div>
       </div>
     </aside>
@@ -178,42 +158,109 @@
 
           <!-- File Breadcrumb & Info -->
           <div class="editor-breadcrumb" id="editorBreadcrumb">
-            <span id="activeFileBreadcrumb">index.html</span>
-            <span id="editorStats">HTML | Ln 1, Col 1 | 0 lines</span>
+            <div class="breadcrumb-left">
+              <span class="breadcrumb-icon" id="breadcrumbFileIcon">📄</span>
+              <span class="breadcrumb-filename" id="activeFileBreadcrumb">No File Open</span>
+              <span class="lang-tag" id="activeLangTag">HTML</span>
+            </div>
+            <div class="breadcrumb-right">
+              <button type="button" class="packages-status-pill" id="breadcrumbPackagesPill" onclick="switchSidebarView('packages')" title="Active Packages (Click to configure)">
+                <span class="pill-dot"></span>
+                <span id="breadcrumbPackagesCount">0 Packages</span>
+              </button>
+              <span class="editor-stats-text" id="editorStats">Ln 1, Col 1</span>
+            </div>
           </div>
 
           <!-- CodeMirror Mounting Node -->
           <div class="codemirror-wrapper" id="codeMirrorContainer"></div>
+
+          <!-- Welcome / Empty Workspace Screen (Shown when no files are open or on clean start) -->
+          <div class="editor-welcome-screen" id="editorWelcomeScreen" style="display:none;">
+            <div class="welcome-container">
+              <div class="welcome-header">
+                <div class="welcome-badge">⚡ WebCode Studio</div>
+                <h2 class="welcome-title">No Files Open</h2>
+                <p class="welcome-subtitle">Create a new file or choose a pre-built template to start building</p>
+              </div>
+
+              <div class="welcome-actions-hero">
+                <div class="welcome-action-card" onclick="openNewFileModal()" role="button" tabindex="0">
+                  <div class="welcome-card-icon" style="background:rgba(59,130,246,0.15);color:#3b82f6;">＋</div>
+                  <div class="welcome-card-body">
+                    <h3>New File</h3>
+                    <p>Create an HTML, CSS, JavaScript, Python, SQL, or Markdown file</p>
+                  </div>
+                  <span class="welcome-card-action">＋ Create File →</span>
+                </div>
+
+                <div class="welcome-action-card" onclick="openTemplatesModal()" role="button" tabindex="0">
+                  <div class="welcome-card-icon" style="background:rgba(139,92,246,0.15);color:#a855f7;">📋</div>
+                  <div class="welcome-card-body">
+                    <h3>Templates</h3>
+                    <p>Start from ready-to-use projects (React, Todo App, SQLite DB, Canvas, & more)</p>
+                  </div>
+                  <span class="welcome-card-action">Browse Templates →</span>
+                </div>
+              </div>
+
+              <div class="welcome-footer-actions">
+                <button class="btn btn-sm" onclick="document.getElementById('fileUploadInput').click()">📁 Open Local Files</button>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Preview / Result Output Pane -->
+        <!-- Resizable Splitter between Editor and Preview -->
+        <div class="workspace-splitter" id="workspaceSplitter" title="Drag to resize Editor & Preview (Double-click to reset 50/50)">
+          <div class="splitter-handle"></div>
+        </div>
+
         <div class="preview-pane" id="previewPane">
           <div class="preview-header" id="previewHeader">
-            <span data-i18n="livePreview">Live Output</span>
-            <div style="display:flex;align-items:center;gap:6px;">
-              <button class="btn btn-sm btn-tab active" onclick="setDevicePreview('desktop', this)" title="Desktop View">🖥️</button>
-              <button class="btn btn-sm btn-tab" onclick="setDevicePreview('tablet', this)" title="Tablet View">📱</button>
-              <button class="btn btn-sm btn-tab" onclick="setDevicePreview('mobile', this)" title="Mobile View">📲</button>
-              <button class="btn btn-sm" onclick="runActiveFile()" title="Refresh">🔄</button>
+            <div class="preview-header-left">
+              <span class="preview-status-indicator" id="previewLiveIndicator" title="Live Preview Active" style="display:none;"></span>
+            </div>
+            <div class="preview-header-actions">
+              <div class="device-switcher-group" id="deviceSwitcherGroup">
+                <button class="btn btn-sm btn-device active" onclick="setDevicePreview('desktop', this)" title="Desktop View (100% Fluid)">🖥️</button>
+                <button class="btn btn-sm btn-device" onclick="setDevicePreview('tablet', this)" title="Tablet View (768px)">📱</button>
+                <button class="btn btn-sm btn-device" onclick="setDevicePreview('mobile', this)" title="Mobile View (375px)">📲</button>
+              </div>
+              <button class="btn btn-sm" onclick="popoutPreviewWindow()" title="Pop Out Preview in New Tab">↗</button>
+              <button class="btn btn-sm" onclick="runActiveFile()" title="Recompile & Refresh (Ctrl+Enter)">🔄</button>
             </div>
           </div>
 
           <div class="preview-viewport" id="previewViewport">
+            <!-- Empty Preview State (When no files are loaded in editor) -->
+            <div id="previewEmptyState" class="preview-empty-state" style="display:none;">
+              <div class="preview-empty-inner">
+                <div class="preview-empty-icon">⚡</div>
+                <p class="preview-empty-text">No preview available</p>
+                <span class="preview-empty-subtext">Open or create a file to view live output</span>
+              </div>
+            </div>
+
             <!-- Web Live Sandbox Iframe -->
             <iframe id="previewFrame" class="preview-iframe" title="WebCode Preview" sandbox="allow-scripts allow-modals allow-forms"></iframe>
 
             <!-- Markdown Document Renderer -->
             <div id="markdownContainer" class="markdown-view" style="display:none;"></div>
 
-            <!-- SQL Relational Results Viewer -->
+            <!-- SQL Relational Results Viewer (In Preview) -->
             <div id="sqlContainer" class="sql-table-view" style="display:none;"></div>
           </div>
         </div>
 
       </div>
 
+      <!-- Resizable Splitter for Bottom Panel -->
+      <div class="bottom-panel-resizer" id="bottomPanelResizer" title="Drag to resize panel height"></div>
+
       <!-- Bottom Panel (Console / Terminal / Output / REPL) -->
-      <section class="bottom-panel" id="bottomPanel">
+      <section class="bottom-panel collapsed" id="bottomPanel">
         <div class="bottom-panel-header" id="bottomPanelHeader">
           <div class="panel-tabs">
             <button class="panel-tab-btn active" data-tab="terminal" onclick="switchBottomTab('terminal')" id="tabTerminalBtn">
@@ -231,11 +278,24 @@
           </div>
         </div>
 
-        <div class="terminal-stream" id="terminalLogs"></div>
+        <!-- Terminal View Tab Content -->
+        <div class="bottom-tab-content" id="bottomTabTerminal">
+          <div class="terminal-stream" id="terminalLogs"></div>
 
-        <div class="terminal-repl" id="terminalRepl">
-          <span style="color:var(--accent);font-weight:bold;">❯</span>
-          <input type="text" id="termReplInput" placeholder="Type JS expression or Python command..." data-i18n-placeholder="evalPrompt">
+          <div class="terminal-repl" id="terminalRepl">
+            <span style="color:var(--accent);font-weight:bold;">❯</span>
+            <input type="text" id="termReplInput" placeholder="Type JS expression or Python command..." data-i18n-placeholder="evalPrompt">
+          </div>
+        </div>
+
+        <!-- SQL Results Tab Content -->
+        <div class="bottom-tab-content" id="bottomTabSql" style="display:none;">
+          <div class="sql-results-panel" id="bottomSqlContainer">
+            <div class="sql-empty-state">
+              <span>📊 No SQL query executed yet.</span>
+              <button class="btn btn-sm btn-primary" onclick="executeDatabaseSqlFile()">▶ Run database.sql</button>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -253,9 +313,9 @@
 
   <!-- Templates Modal -->
   <div class="modal-backdrop" id="templatesModal" onclick="if(event.target === this) closeModal('templatesModal')">
-    <div class="modal-box">
+    <div class="modal-box" style="max-width:860px;width:92vw;max-height:85vh;">
       <div class="modal-header">
-        <span data-i18n="templates">Project Templates</span>
+        <span style="font-weight:700;display:flex;align-items:center;gap:6px;">📋 Project Templates Catalog</span>
         <button class="tree-action-btn" onclick="closeModal('templatesModal')">✕</button>
       </div>
       <div class="modal-body">
@@ -267,17 +327,64 @@
     </div>
   </div>
 
+  <!-- New File Modal -->
+  <div class="modal-backdrop" id="newFileModal" onclick="if(event.target === this) closeModal('newFileModal')">
+    <div class="modal-box" style="max-width:440px;">
+      <div class="modal-header">
+        <span style="font-weight:600;display:flex;align-items:center;gap:6px;">📄 Create New File</span>
+        <button class="tree-action-btn" onclick="closeModal('newFileModal')">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <label style="display:block;font-size:12px;color:var(--text-muted);margin-bottom:6px;font-weight:500;">Enter file name & extension:</label>
+        <input type="text" id="newFileInput" class="custom-text-input" style="width:100%;font-family:var(--editor-font-family, monospace);font-size:13px;" placeholder="e.g. index.html, main.py, styles.css, query.sql">
+        
+        <div style="margin-top:14px;">
+          <span style="display:block;font-size:11px;color:var(--text-dim);margin-bottom:6px;font-weight:600;letter-spacing:0.5px;">QUICK EXTENSIONS</span>
+          <div style="display:flex;flex-wrap:wrap;gap:6px;" id="quickFileExtBadges">
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('index.html')">🌐 .html</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('style.css')">🎨 .css</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('script.js')">📜 .js</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('main.py')">
+              <svg class="python-svg-icon" viewBox="0 0 128 128" width="13" height="13" style="vertical-align:-1px;margin-right:2px;">
+                <path fill="#387eb8" d="M63.5 6c-26.6 0-25 11.5-25 11.5l.03 11.9h25.4v3.6H28.1S11 31.1 11 58.3c0 27.1 15 26.2 15 26.2h8.9V71.9s-.5-15 14.8-15h25.2s14.2.2 14.2-14V20.2S91 6 63.5 6zm-14 7.7a4.7 4.7 0 1 1 0 9.4 4.7 4.7 0 0 1 0-9.4z"/>
+                <path fill="#ffd43b" d="M64.5 122c26.6 0 25-11.5 25-11.5l-.03-11.9H64.1V95h35.8s17.1 1.9 17.1-25.3c0-27.1-15-26.2-15-26.2h-8.9v12.6s.5 15-14.8 15H43.1s-14.2-.2-14.2 14v22.7s-1.9 14.2 35.6 14.2zm14-7.7a4.7 4.7 0 1 1 0-9.4 4.7 4.7 0 0 1 0 9.4z"/>
+              </svg> .py
+            </button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('query.sql')">🗄️ .sql</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('README.md')">📝 .md</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('data.json')">⚙️ .json</button>
+            <button type="button" class="btn btn-sm" onclick="quickFillNewFileName('App.jsx')">⚛️ .jsx</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('newFileModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateNewFileModal()">Create File</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Rename File Modal -->
+  <div class="modal-backdrop" id="renameModal" onclick="if(event.target === this) closeModal('renameModal')">
+    <div class="modal-box" style="max-width:380px;">
+      <div class="modal-header">
+        <span>✏️ Rename Project File</span>
+        <button class="tree-action-btn" onclick="closeModal('renameModal')">✕</button>
+      </div>
+      <div class="modal-body" style="padding:16px;">
+        <label style="display:block;font-size:12px;color:var(--text-dim);margin-bottom:6px;">New File Name & Extension:</label>
+        <input type="text" id="renameInput" class="custom-text-input" style="width:100%;" placeholder="e.g. index.html, main.py, query.sql">
+        <input type="hidden" id="renameOldName">
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('renameModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitRenameModal()">Rename</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Toast Notification Container -->
   <div class="toast-container" id="toastContainer"></div>
-
-  <script>
-    function setDevicePreview(device, el) {
-      const frame = document.getElementById('previewFrame');
-      frame.className = `preview-iframe device-${device}`;
-      el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
-      el.classList.add('active');
-    }
-  </script>
 
   <!-- Main Application Controller -->
   <script src="./app.js"></script>
