@@ -1,813 +1,271 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>💻 WebCode</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebCode - Universal IDE</title>
+  <meta name="description" content="Universal in-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, command palette, DevTools, and export.">
+  <meta property="og:title" content="WebCode - Universal IDE">
+  <meta property="og:description" content="Universal in-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, command palette, DevTools, and export.">
 
-<script src="./jszip.min.js"></script>
+  <!-- Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-<style>
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
-    font-family:Segoe UI,sans-serif;
-}
-    
-textarea:focus,
-button:focus,
-input:focus{
-    outline:2px solid var(--accent);
-    outline-offset:2px;
-}
+  <!-- CodeMirror 5 Core & Modes -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/theme/material-ocean.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/codemirror.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/xml/xml.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/javascript/javascript.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/css/css.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/htmlmixed/htmlmixed.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/python/python.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/sql/sql.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/markdown/markdown.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/mode/gfm/gfm.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/closebrackets.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.16/addon/edit/matchbrackets.min.js"></script>
 
-label{
-    cursor:pointer;
-}
-    
-:root{
-    --bg:#0f172a;
-    --card:#1e293b;
-    --border:#334155;
-    --text:#f8fafc;
-    --accent:#3b82f6;
-    --danger:#ef4444;
-}
+  <!-- JSZip for project archives -->
+  <script src="./jszip.min.js"></script>
 
-body.light{
-    --bg:#f8fafc;
-    --card:#ffffff;
-    --border:#d1d5db;
-    --text:#111827;
-}
-
-body{
-    background:var(--bg);
-    color:var(--text);
-    height:100vh;
-    overflow:hidden;
-}
-
-.topbar{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:12px;
-    padding:12px 20px;
-    background:var(--card);
-    border-bottom:1px solid var(--border);
-    flex-wrap:wrap;
-}
-
-#projectName{
-    border:none;
-    background:transparent;
-    color:var(--text);
-    font-size:18px;
-    font-weight:700;
-    outline:none;
-}
-
-.actions{
-    display:flex;
-    gap:8px;
-    flex-wrap:wrap;
-    align-items:center;
-}
-
-button{
-    border:none;
-    padding:8px 14px;
-    border-radius:8px;
-    background:var(--accent);
-    color:white;
-    cursor:pointer;
-}
-
-button:hover{
-    opacity:.9;
-}
-
-.workspace{
-    height:calc(100vh - 70px);
-    overflow:auto;
-    padding:10px;
-}
-
-.editors{
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:10px;
-}
-
-.panel{
-    background:var(--card);
-    border:1px solid var(--border);
-    border-radius:12px;
-    padding:10px;
-}
-
-.panel h3{
-    margin-bottom:10px;
-}
-
-textarea{
-    width:100%;
-    height:350px;
-    resize:vertical;
-    padding:10px;
-    border-radius:8px;
-    border:1px solid var(--border);
-    background:var(--bg);
-    color:var(--text);
-    font-family:Consolas, monospace;
-}
-
-.preview-panel{
-    margin-top:10px;
-}
-
-iframe{
-    width:100%;
-    height:500px;
-    border:none;
-    border-radius:8px;
-    background:#fff;
-}
-
-.stats{
-    font-size:13px;
-    opacity:.8;
-    margin-top:10px;
-}
-
-.history{
-    display:flex;
-    flex-wrap:wrap;
-    gap:8px;
-    margin-top:10px;
-    margin-bottom:12px;
-}
-
-.history button{
-    background:#475569;
-}
-
-.status{
-    font-size:12px;
-    margin-left:5px;
-    opacity:.8;
-}
-
-@media(max-width:1000px){
-
-    .editors{
-        grid-template-columns:1fr;
-    }
-
-    textarea{
-        height:240px;
-    }
-
-    iframe{
-        height:380px;
-    }
-}
-</style>
+  <!-- Application CSS -->
+  <link rel="stylesheet" href="./styles.css">
 </head>
-<body>
+<body class="theme-midnight">
 
-<div class="topbar">
+  <!-- IDE Topbar -->
+  <header class="app-header" id="appHeader">
+    <div class="brand-wrapper">
+      <div class="brand-icon" id="brandLogo">⚡</div>
+      <span class="brand-name">WebCode</span>
+      <input type="text" id="projectTitle" class="project-title-input" value="💻 My Project" title="Project Name">
+      <span class="runtime-badge" id="runtimeBadge">Web Engine</span>
+    </div>
 
-<input
-id="projectName"
-type="text"
-value="💻 WebCode">
+    <div class="topbar-center">
+      <button class="btn btn-primary" id="btnRunCode" onclick="runActiveFile()">
+        <span>▶</span>
+        <span data-i18n="run">Run</span>
+      </button>
 
-<div class="actions">
+      <button class="btn" id="btnSaveSnapshot" onclick="saveProjectSnapshot()">
+        <span>💾</span>
+        <span data-i18n="save">Save</span>
+      </button>
 
-<label>
-<input
-id="autorun"
-type="checkbox"
-checked>
-Auto Run
-</label>
+      <button class="btn" id="btnOpenTemplates" onclick="openTemplatesModal()">
+        <span>📋</span>
+        <span data-i18n="templates">Templates</span>
+      </button>
 
-<button onclick="runCode()">▶ Run</button>
-<button onclick="saveProject()">💾 Save</button>
-<button onclick="exportProject()">📦 Export ZIP</button>
-<button onclick="importFiles()">📥 Import</button>
-<button id="themeBtn">☀ Day</button>
-<button onclick="fullscreenPreview()">⛶ Full Preview</button>
+      <button class="btn" id="btnCommandPalette" onclick="toggleCommandPalette()" title="Command Palette (Ctrl+Shift+P)">
+        <span>⌨️</span>
+        <span data-i18n="commandPalette">Commands</span>
+      </button>
+    </div>
 
-<span id="saveStatus" class="status"></span>
+    <div class="topbar-actions">
+      <!-- Layout Switcher -->
+      <div class="btn-group" id="layoutGroup">
+        <button class="btn-tab active" data-layout="split" onclick="setIdeLayout('split')" title="Split View">◫</button>
+        <button class="btn-tab" data-layout="code-only" onclick="setIdeLayout('code-only')" title="Code Only">▯</button>
+        <button class="btn-tab" data-layout="preview-only" onclick="setIdeLayout('preview-only')" title="Output Only">▭</button>
+      </div>
 
-</div>
+      <!-- Export & Share -->
+      <button class="btn btn-sm" id="btnExportZip" onclick="exportProjectZip()" title="Export ZIP Archive">
+        <span>📦</span>
+        <span data-i18n="exportZip">ZIP</span>
+      </button>
 
-</div>
+      <button class="btn btn-sm" id="btnShareLink" onclick="copyShareUrl()" title="Share Link">
+        <span>🔗</span>
+      </button>
 
-<div class="workspace">
+      <!-- Language Switcher (10 languages) -->
+      <select class="custom-select" id="langSelector" onchange="setIdeLanguage(this.value)">
+        <option value="en">🇺🇸 EN</option>
+        <option value="es">🇪🇸 ES</option>
+        <option value="fr">🇫🇷 FR</option>
+        <option value="de">🇩🇪 DE</option>
+        <option value="zh">🇨🇳 中文</option>
+        <option value="ja">🇯🇵 日本語</option>
+        <option value="hi">🇮🇳 हिन्दी</option>
+        <option value="pt">🇧🇷 PT</option>
+        <option value="ru">🇷🇺 RU</option>
+        <option value="ar">🇸🇦 العربية</option>
+      </select>
 
-<div class="editors">
+      <!-- Theme Switcher -->
+      <select class="custom-select" id="themeSelector" onchange="setIdeTheme(this.value)">
+        <option value="midnight">🌙 Midnight</option>
+        <option value="light">☀️ Light</option>
+        <option value="dracula">🧛 Dracula</option>
+        <option value="monokai">🎨 Monokai</option>
+      </select>
+    </div>
+  </header>
 
-<div class="panel">
-<h3>🧱 index.html</h3>
+  <!-- IDE Main Body -->
+  <main class="ide-body" id="ideBody">
 
-<textarea id="htmlCode"><h1>Hello WebCode</h1>
-<p>Start building something amazing.</p></textarea>
+    <!-- Activity Bar (VS Code Style Left Column) -->
+    <nav class="activity-bar" id="activityBar" aria-label="Activity Bar">
+      <div class="activity-icons-top">
+        <button class="activity-btn active" data-view="explorer" onclick="switchSidebarView('explorer')" title="Files Explorer" id="activityExplorerBtn">
+          📁
+        </button>
+        <button class="activity-btn" data-view="search" onclick="switchSidebarView('search')" title="Search in Files" id="activitySearchBtn">
+          🔍
+        </button>
+        <button class="activity-btn" data-view="packages" onclick="switchSidebarView('packages')" title="Packages & CDNs" id="activityPackagesBtn">
+          📦
+        </button>
+        <button class="activity-btn" data-view="tools" onclick="switchSidebarView('tools')" title="Developer Toolbox" id="activityToolsBtn">
+          🛠️
+        </button>
+        <button class="activity-btn" data-view="history" onclick="switchSidebarView('history')" title="Snapshots & History" id="activityHistoryBtn">
+          🕒
+        </button>
+      </div>
+      <div class="activity-icons-bottom">
+        <button class="activity-btn" data-view="settings" onclick="switchSidebarView('settings')" title="IDE Settings" id="activitySettingsBtn">
+          ⚙️
+        </button>
+      </div>
+    </nav>
 
-</div>
+    <!-- Sidebar Panel (Drawer for Explorer / Tools / CDNs) -->
+    <aside class="sidebar-panel" id="sidebarPanel" data-current-view="explorer">
+      <div class="sidebar-header" id="sidebarHeader">
+        <span id="sidebarHeaderTitle" data-i18n="filesTitle">PROJECT FILES</span>
+        <div class="file-tree-actions">
+          <button class="tree-action-btn" onclick="promptCreateNewFile()" title="New File" id="btnNewFileTree">＋</button>
+        </div>
+      </div>
+      <div class="sidebar-content" id="sidebarContentArea">
+        <div class="file-list" id="fileTreeList"></div>
+      </div>
+    </aside>
 
-<div class="panel">
-<h3>🎨 style.css</h3>
+    <!-- Center Workspace Stage (Editor + Preview/Result + Bottom Panel) -->
+    <section class="workspace-stage" id="workspaceStage">
 
-<textarea id="cssCode">body{
-font-family:Arial,sans-serif;
-padding:20px;
-}
+      <!-- Editor & Preview Split Container -->
+      <div class="editor-and-preview-container" id="editorAndPreviewContainer">
 
-h1{
-color:dodgerblue;
-}</textarea>
+        <!-- Code Editor Pane -->
+        <div class="editor-pane" id="editorPane">
+          <!-- Open Tabs Bar -->
+          <div class="editor-tabs-bar" id="editorTabsBar"></div>
 
-</div>
+          <!-- File Breadcrumb & Info -->
+          <div class="editor-breadcrumb" id="editorBreadcrumb">
+            <span id="activeFileBreadcrumb">index.html</span>
+            <span id="editorStats">HTML | Ln 1, Col 1 | 0 lines</span>
+          </div>
 
-<div class="panel">
-<h3>⚡ script.js</h3>
+          <!-- CodeMirror Mounting Node -->
+          <div class="codemirror-wrapper" id="codeMirrorContainer"></div>
+        </div>
 
-<textarea id="jsCode">document.body.style.transition="all .3s";</textarea>
+        <!-- Preview / Result Output Pane -->
+        <div class="preview-pane" id="previewPane">
+          <div class="preview-header" id="previewHeader">
+            <span data-i18n="livePreview">Live Output</span>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <button class="btn btn-sm btn-tab active" onclick="setDevicePreview('desktop', this)" title="Desktop View">🖥️</button>
+              <button class="btn btn-sm btn-tab" onclick="setDevicePreview('tablet', this)" title="Tablet View">📱</button>
+              <button class="btn btn-sm btn-tab" onclick="setDevicePreview('mobile', this)" title="Mobile View">📲</button>
+              <button class="btn btn-sm" onclick="runActiveFile()" title="Refresh">🔄</button>
+            </div>
+          </div>
 
-</div>
+          <div class="preview-viewport" id="previewViewport">
+            <!-- Web Live Sandbox Iframe -->
+            <iframe id="previewFrame" class="preview-iframe" title="WebCode Preview" sandbox="allow-scripts allow-modals allow-same-origin allow-forms"></iframe>
 
-</div>
+            <!-- Markdown Document Renderer -->
+            <div id="markdownContainer" class="markdown-view" style="display:none;"></div>
 
-<div class="panel preview-panel">
+            <!-- SQL Relational Results Viewer -->
+            <div id="sqlContainer" class="sql-table-view" style="display:none;"></div>
+          </div>
+        </div>
 
-<h3>👀 Live Preview</h3>
+      </div>
 
-<iframe
-id="preview"
-sandbox="allow-scripts allow-modals allow-forms allow-popups">
-</iframe>
+      <!-- Bottom Panel (Console / Terminal / Output / REPL) -->
+      <section class="bottom-panel" id="bottomPanel">
+        <div class="bottom-panel-header" id="bottomPanelHeader">
+          <div class="panel-tabs">
+            <button class="panel-tab-btn active" data-tab="terminal" onclick="switchBottomTab('terminal')" id="tabTerminalBtn">
+              <span>💻</span> <span data-i18n="terminal">Terminal</span>
+            </button>
+            <button class="panel-tab-btn" data-tab="sqlViewer" onclick="switchBottomTab('sqlViewer')" id="tabSqlViewerBtn">
+              <span>📊</span> <span data-i18n="sqlViewer">SQL Results</span>
+            </button>
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <button class="btn btn-sm" onclick="clearTerminal()" id="btnClearTerminal">
+              <span data-i18n="clearLogs">Clear</span>
+            </button>
+            <button class="btn btn-sm" onclick="toggleBottomPanel()" id="btnToggleBottomPanel">↕</button>
+          </div>
+        </div>
 
-<div
-id="stats"
-class="stats">
-</div>
+        <div class="terminal-stream" id="terminalLogs"></div>
 
-<h3 style="margin-top:15px;">🕒 Version History</h3>
+        <div class="terminal-repl" id="terminalRepl">
+          <span style="color:var(--accent);font-weight:bold;">❯</span>
+          <input type="text" id="termReplInput" placeholder="Type JS expression or Python command..." data-i18n-placeholder="evalPrompt">
+        </div>
+      </section>
 
-<div
-id="history"
-class="history">
-</div>
+    </section>
 
-<button id="clearHistoryBtn">
-🗑 Clear History
-</button>
+  </main>
 
-</div>
+  <!-- Command Palette Modal (Ctrl+Shift+P) -->
+  <div class="command-palette-backdrop" id="commandPaletteModal" onclick="if(event.target === this) toggleCommandPalette()">
+    <div class="command-palette-box">
+      <input type="text" id="commandSearchInput" class="command-search-input" placeholder="Type a command or search..." oninput="renderCommandList(this.value)">
+      <div class="command-list" id="commandList"></div>
+    </div>
+  </div>
 
-</div>
+  <!-- Templates Modal -->
+  <div class="modal-backdrop" id="templatesModal" onclick="if(event.target === this) closeModal('templatesModal')">
+    <div class="modal-box">
+      <div class="modal-header">
+        <span data-i18n="templates">Project Templates</span>
+        <button class="tree-action-btn" onclick="closeModal('templatesModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="templates-container" id="templatesGrid"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn" onclick="closeModal('templatesModal')">Close</button>
+      </div>
+    </div>
+  </div>
 
-<script>
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
 
-const htmlCode = document.getElementById("htmlCode");
-const cssCode = document.getElementById("cssCode");
-const jsCode = document.getElementById("jsCode");
-const preview = document.getElementById("preview");
-const projectName = document.getElementById("projectName");
-
-window.addEventListener("load", () => {
-
-    if (typeof JSZip === "undefined") {
-
-        alert(
-            "JSZip NOT loaded.\n\nMake sure jszip.min.js is beside index.html"
-        );
-
-    } else {
-
-        console.log("JSZip loaded successfully");
-
+  <script>
+    function setDevicePreview(device, el) {
+      const frame = document.getElementById('previewFrame');
+      frame.className = `preview-iframe device-${device}`;
+      el.parentElement.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      el.classList.add('active');
     }
-});
+  </script>
 
-function countLines(text){
-    return text.split("\n").length;
-}
-
-function updateStats(){
-    document.getElementById("stats").innerHTML = `
-        HTML: ${htmlCode.value.length} chars | ${countLines(htmlCode.value)} lines
-        <br>
-        CSS: ${cssCode.value.length} chars | ${countLines(cssCode.value)} lines
-        <br>
-        JS: ${jsCode.value.length} chars | ${countLines(jsCode.value)} lines
-    `;
-}
-
-function runCode(){
-
-    const html = htmlCode.value;
-    const css = cssCode.value;
-
-    const js = jsCode.value.replace(
-        /<\/script>/gi,
-        "<\\/script>"
-    );
-
-    preview.srcdoc = `
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<style>${css}</style>
-</head>
-<body>
-
-${html}
-
-<script>
-
-try{
-
-${js}
-
-}catch(error){
-
-    const pre =
-        document.createElement("pre");
-
-    pre.style.color = "red";
-    pre.style.padding = "10px";
-    pre.style.border = "1px solid red";
-    pre.style.background = "#fff5f5";
-
-    pre.textContent =
-        error.stack || error;
-
-    document.body.appendChild(pre);
-}
-
-<\/script>
-
-</body>
-</html>
-`;
-
-    updateStats();
-}
-
-function saveDraft(){
-
-    localStorage.setItem(
-        "draft-html",
-        htmlCode.value
-    );
-
-    localStorage.setItem(
-        "draft-css",
-        cssCode.value
-    );
-
-    localStorage.setItem(
-        "draft-js",
-        jsCode.value
-    );
-
-    localStorage.setItem(
-        "draft-name",
-        projectName.value
-    );
-
-    const status =
-        document.getElementById(
-            "saveStatus"
-        );
-
-    status.textContent =
-        "Draft Saved";
-
-    clearTimeout(
-        saveDraft._timer
-    );
-
-    saveDraft._timer =
-        setTimeout(()=>{
-            status.textContent="";
-        },2000);
-}
-
-function restoreDraft(){
-
-    htmlCode.value =
-        localStorage.getItem("draft-html")
-        || htmlCode.value;
-
-    cssCode.value =
-        localStorage.getItem("draft-css")
-        || cssCode.value;
-
-    jsCode.value =
-        localStorage.getItem("draft-js")
-        || jsCode.value;
-
-    projectName.value =
-        localStorage.getItem("draft-name")
-        || projectName.value;
-
-}
-
-let autoSaveTimer;
-
-function autoRun(){
-
-    clearTimeout(autoSaveTimer);
-
-    autoSaveTimer =
-        setTimeout(()=>{
-
-            saveDraft();
-
-            if(
-                document.getElementById(
-                    "autorun"
-                ).checked
-            ){
-                runCode();
-            }
-
-        },300);
-}
-
-projectName.addEventListener("input", autoRun);
-htmlCode.addEventListener("input", autoRun);
-cssCode.addEventListener("input", autoRun);
-jsCode.addEventListener("input", autoRun);
-
-function getDB(){
-
-    try{
-
-        return JSON.parse(
-            localStorage.getItem("webcode-db")
-        ) || {history:[]};
-
-    }catch{
-
-        return {history:[]};
-
-    }
-
-}
-
-function saveProject(){
-
-    const db = getDB();
-
-    const project = {
-
-        name: projectName.value,
-        html: htmlCode.value,
-        css: cssCode.value,
-        js: jsCode.value,
-        timestamp:
-            new Date()
-            .toLocaleString()
-    };
-
-    const last =
-        db.history[
-            db.history.length - 1
-        ];
-
-    if(
-        !last ||
-        last.html !== project.html ||
-        last.css !== project.css ||
-        last.js !== project.js
-    ){
-        db.history.push(project);
-    }
-
-    if(db.history.length > 50){
-        db.history.shift();
-    }
-
-    localStorage.setItem(
-        "webcode-db",
-        JSON.stringify(db)
-    );
-
-    loadHistory();
-
-    alert("Project Saved");
-}
-
-function loadHistory(){
-
-    const history =
-        document.getElementById("history");
-
-    history.innerHTML = "";
-
-    const db = getDB();
-
-    [...db.history]
-    .reverse()
-    .forEach(item=>{
-
-        const btn =
-            document.createElement("button");
-
-        btn.textContent =
-            item.timestamp;
-
-        btn.onclick = () => {
-
-            projectName.value =
-                item.name;
-
-            htmlCode.value =
-                item.html;
-
-            cssCode.value =
-                item.css;
-
-            jsCode.value =
-                item.js;
-
-            runCode();
-
-        };
-
-        history.appendChild(btn);
-
-    });
-
-}
-
-function clearHistory() {
-    if (!confirm("Delete all saved versions?")) {
-        return;
-    }
-
-    localStorage.removeItem("webcode-db");
-    loadHistory();
-}
-
-document
-    .getElementById("clearHistoryBtn")
-    .addEventListener("click", clearHistory);
-
-async function exportProject(){
-
-    try{
-
-        if(typeof JSZip === "undefined"){
-
-            alert("JSZip not loaded");
-            return;
-
-        }
-
-        const zip =
-            new JSZip();
-
-        const completeHTML =
-`<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>${projectName.value}</title>
-<link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-${htmlCode.value}
-
-<script src="script.js"><\/script>
-
-</body>
-</html>`;
-
-        zip.file(
-            "index.html",
-            completeHTML
-        );
-
-        zip.file(
-            "style.css",
-            cssCode.value
-        );
-
-        zip.file(
-            "script.js",
-            jsCode.value
-        );
-
-        const blob =
-            await zip.generateAsync({
-                type:"blob"
-            });
-
-        const url = URL.createObjectURL(blob);
-
-const safeName =
-(projectName.value || "project")
-.replace(/[^a-z0-9_\- ]/gi, "_");
-
-const a = document.createElement("a");
-a.href = url;
-a.download = safeName + ".zip";
-
-document.body.appendChild(a);
-a.click();
-a.remove();
-
-setTimeout(() => {
-    URL.revokeObjectURL(url);
-}, 100);
-
-    }catch(error){
-
-        alert(
-            "Export failed: " +
-            error.message
-        );
-
-        console.error(error);
-
-    }
-
-}
-
-function importFiles(){
-
-    const input =
-        document.createElement(
-            "input"
-        );
-
-    input.type = "file";
-
-    input.multiple = true;
-
-    input.accept =
-        ".html,.css,.js";
-
-    input.onchange =
-    async ()=>{
-
-        const files =
-            [...input.files];
-
-        for(
-            const file of files
-        ){
-
-            const content =
-                await file.text();
-
-            const name =
-                file.name
-                .toLowerCase();
-
-            if(
-                name.endsWith(
-                    ".html"
-                )
-            ){
-                htmlCode.value =
-                    content;
-            }
-
-            else if(
-                name.endsWith(
-                    ".css"
-                )
-            ){
-                cssCode.value =
-                    content;
-            }
-
-            else if(
-                name.endsWith(
-                    ".js"
-                )
-            ){
-                jsCode.value =
-                    content;
-            }
-        }
-
-        runCode();
-    };
-
-    input.click();
-}
-
-const themeBtn =
-    document.getElementById(
-        "themeBtn"
-    );
-
-function updateThemeButton() {
-    themeBtn.textContent =
-        document.body.classList.contains("light")
-            ? "🌙 Night"
-            : "☀ Day";
-}
-
-themeBtn.addEventListener("click", toggleTheme);
-
-function toggleTheme(){
-
-    document.body.classList.toggle(
-        "light"
-    );
-
-    localStorage.setItem(
-        "theme",
-        document.body.classList.contains(
-            "light"
-        )
-    );
-
-    updateThemeButton();
-}
-
-function fullscreenPreview(){
-
-    if(preview.requestFullscreen){
-
-        preview.requestFullscreen();
-
-    }else if(
-        preview.webkitRequestFullscreen
-    ){
-
-        preview.webkitRequestFullscreen();
-
-    }
-
-}
-
-document.addEventListener(
-"keydown",
-function(e){
-
-    if(e.ctrlKey && e.key === "s"){
-
-        e.preventDefault();
-        saveProject();
-
-    }
-
-    if(e.ctrlKey && e.key === "Enter"){
-
-        e.preventDefault();
-        runCode();
-
-    }
-
-    if(
-        e.ctrlKey &&
-        e.key.toLowerCase() === "l"
-    ){
-
-        e.preventDefault();
-
-        htmlCode.value = "";
-        cssCode.value = "";
-        jsCode.value = "";
-
-        runCode();
-
-    }
-
-});
-
-if(
-    localStorage.getItem(
-        "theme"
-    ) === "true"
-){
-    document.body.classList.add(
-        "light"
-    );
-}
-
-updateThemeButton();
-restoreDraft();
-loadHistory();
-updateStats();
-runCode();
-
-</script>
-
+  <!-- Main Application Controller -->
+  <script src="./app.js"></script>
 </body>
 </html>

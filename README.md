@@ -1,401 +1,143 @@
-# 💻 WebCode
+# ⚡ WebCode - Universal In-Browser IDE & Playground
 
-A lightweight, browser-based web development playground for writing, testing, saving, and exporting **HTML**, **CSS**, and **JavaScript** projects with a live preview. Built entirely with **HTML, CSS, Vanilla JavaScript, Local Storage, and JSZip**, WebCode runs directly in the browser without requiring a backend.
-
----
-
-## ✨ Features
-
-### 🧱 Multi-Panel Editor
-- Dedicated editors for:
-  - HTML (`index.html`)
-  - CSS (`style.css`)
-  - JavaScript (`script.js`)
-- Clean and responsive interface.
-
-### ⚡ Live Preview
-- Instantly render HTML, CSS, and JavaScript inside a sandboxed iframe.
-- Automatic preview refresh supported via Auto Run.
-
-### 🔄 Auto Run
-- Automatically updates the preview while typing.
-- Can be enabled or disabled at any time.
-
-### 💾 Draft Auto Save
-- Automatically saves:
-  - Project name
-  - HTML code
-  - CSS code
-  - JavaScript code
-- Stored locally using browser Local Storage.
-
-### 📂 Project Save System
-- Save project snapshots manually.
-- Preserves a history of previous versions.
-
-### 🕒 Version History
-- Stores up to **50 versions**.
-- Restore any previously saved revision with one click.
-
-### 📦 ZIP Export
-Export projects as a ZIP package containing:
-
-```text
-index.html
-style.css
-script.js
-```
-
-Powered by **JSZip**.
-
-### 📥 Import Existing Files
-Import:
-
-- `.html`
-- `.css`
-- `.js`
-
-Files are automatically loaded into their respective editors.
-
-### 🌗 Light & Dark Themes
-- Dark mode (default)
-- Light mode
-- Theme preference persists across sessions
-
-### ⛶ Fullscreen Preview
-Launch the preview panel in fullscreen mode for easier testing.
-
-### 📊 Code Statistics
-Displays:
-
-- Character count
-- Line count
-
-For:
-
-- HTML
-- CSS
-- JavaScript
-
-### ⌨️ Keyboard Shortcuts
-
-| Shortcut | Action |
-|-----------|---------|
-| Ctrl + S | Save Project |
-| Ctrl + Enter | Run Code |
-| Ctrl + L | Clear Editors |
+WebCode is a comprehensive, client-side in-browser Integrated Development Environment (IDE) with multi-language execution runtimes, a multi-file project workspace, CodeMirror editor, live sandboxed preview, interactive terminal, command palette, and package manager. Built entirely with modern web technologies, WebCode runs 100% in the browser without requiring any backend server or installation.
 
 ---
 
-## 📁 Project Structure
+## 🌟 Supported Language Runtimes & Engines
+
+### 🌐 1. Web Engine (HTML, CSS, JavaScript & JSX)
+- **HTML5 & Modern CSS3**: Live rendered preview in an isolated, sandboxed iframe.
+- **ESNext JavaScript & JSX**: Write standard JavaScript or React JSX components (transpiled live in-browser via Babel Standalone).
+- **Responsive Viewports**: Switch between Desktop (100%), Tablet (768px), and Mobile (375px) device preview frames.
+- **Console Bridge**: Real-time interception of `console.log`, `console.info`, `console.warn`, and `console.error` streamed directly into the IDE Terminal with timestamps.
+
+### 🐍 2. Python 3 WebAssembly Runtime (Pyodide)
+- **Real Python 3 in Browser**: Powered by Pyodide WebAssembly compiled directly for the browser.
+- **Standard Library Support**: Perform mathematical calculations, algorithms, string operations, simulations, and data structures.
+- **Standard Streams**: Live streaming of `sys.stdout` and `sys.stderr` into the integrated terminal.
+- **Interactive REPL**: Execute single Python statements directly through the terminal command bar.
+
+### 🗄️ 3. SQL Relational Database Engine (AlaSQL)
+- **In-Memory SQL Execution**: Execute `CREATE TABLE`, `INSERT`, `SELECT`, `JOIN`, `GROUP BY`, and aggregation queries.
+- **Tabular Data Viewer**: Query results are formatted into an interactive data grid with sticky headers.
+- **1-Click JSON Export**: Download raw SQL query result sets as formatted `.json` files.
+
+### 📝 4. Markdown Document Renderer
+- **GitHub-Flavored Markdown (GFM)**: Live rendered preview for documentation, notes, and README files.
+- **Rich Elements**: Supports formatted headings, styled tables, code blocks, checklists, blockquotes, and links.
+
+---
+
+## ✨ Full Feature Overview
+
+### 📁 Multi-File Project Workspace & Tree
+- Create, rename, edit, and delete any number of project files (`.html`, `.css`, `.js`, `.jsx`, `.py`, `.sql`, `.md`, `.json`).
+- Tabbed editor bar with active tab indicators and quick tab closing.
+- Breadcrumb bar with dynamic file stats (Cursor line, column, and total line count).
+
+### 🎨 VS Code-Style Activity Bar
+- **📁 File Explorer**: Navigate, manage, and create project files.
+- **🔍 Global Search**: Search text across all files with line number highlighting and 1-click jump-to-file.
+- **📦 Packages & CDNs**: 1-click install/toggle popular libraries:
+  - Tailwind CSS, Bootstrap 5.3, Font Awesome 6, Lucide Icons, Canvas Confetti, Three.js, Chart.js, React 18, Vue 3, Babel Standalone.
+- **🛠️ Developer Toolbox**:
+  - Color Picker with hex code display.
+  - 1-Click JSON Formatter & Syntax Validator.
+  - Base64 Text Encoder / Decoder.
+- **🕒 Snapshots & History**: Save named timestamped versions and restore previous project states with one click.
+- **⚙️ IDE Settings**: Adjust editor font size, tab indentation (2 vs 4 spaces), and editor themes.
+
+### ⌨️ Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
+- Keyboard-first command launcher with instant fuzzy searching.
+- Execute any IDE action: run project, save snapshot, create file, clear logs, format code, or switch themes without taking hands off the keyboard.
+
+### 💻 Interactive Terminal & REPL
+- Multi-tab bottom panel (Terminal & SQL Results).
+- Resizable and collapsible bottom drawer.
+- Filtered color-coded logs (Success, Info, Warning, Error).
+- Interactive REPL prompt to evaluate JavaScript expressions or Python commands live.
+
+### 📋 Ready-to-Use Project Templates
+- **⚡ Modern Web Starter**: HTML5, CSS3, and JavaScript interactive playground.
+- **🐍 Python Data & Math Algorithms**: Monte Carlo simulations and mathematical calculations.
+- **🗄️ SQL Analytics & E-Commerce**: Multi-table database queries, aggregations, and category summaries.
+- **⚛️ React 18 JSX Counter App**: Interactive React 18 counter with live JSX transpilation.
+
+### 🌍 10-Language Internationalization (i18n) & RTL
+Full UI localization for 10 languages:
+- 🇺🇸 English (EN)
+- 🇪🇸 Spanish (ES)
+- 🇫🇷 French (FR)
+- 🇩🇪 German (DE)
+- 🇨🇳 Chinese (ZH)
+- 🇯🇵 Japanese (JA)
+- 🇮🇳 Hindi (HI)
+- 🇧🇷 Portuguese (PT)
+- 🇷🇺 Russian (RU)
+- 🇸🇦 Arabic (AR) with full RTL (Right-to-Left) layout support.
+
+### 🎨 Modern Theme Presets
+- **🌙 Midnight**: Deep contrast dark theme.
+- **☀️ Light Slate**: Clean, high-legibility light theme.
+- **🧛 Dracula**: Vibrant purple and pastel contrast theme.
+- **🎨 Monokai**: Iconic code editor palette with warm accents.
+
+### 📦 Export & Sharing
+- **ZIP Project Archive**: Download a complete `.zip` archive preserving the exact file structure and contents (powered by JSZip).
+- **Shareable URLs**: Generate a self-contained, base64-encoded URL containing the full project to share with others.
+- **Local Persistence**: Automatic draft saving to `localStorage` so work is never lost between browser refreshes.
+
+---
+
+## ⌨️ Keyboard Shortcuts Reference
+
+| Shortcut | Command |
+|---|---|
+| `Ctrl + Enter` / `Cmd + Enter` | **Run Active File / Project** |
+| `Ctrl + S` / `Cmd + S` | **Save Project Snapshot** |
+| `Ctrl + Shift + P` / `Cmd + Shift + P` | **Open Command Palette** |
+| `Alt + N` | **Create New File** |
+| `Ctrl + 1` | **Switch to File Explorer** |
+| `Ctrl + 2` | **Switch to Search** |
+| `Ctrl + 3` | **Switch to Package Manager** |
+| `Ctrl + 4` | **Switch to Developer Toolbox** |
+| `Ctrl + 5` | **Switch to Snapshots & History** |
+| `Ctrl + ,` | **Switch to IDE Settings** |
+| `Escape` | **Close Modals / Command Palette** |
+
+---
+
+## 📁 Project Architecture
 
 ```text
 WebCode/
-│
-├── index.html
-├── jszip.min.js
-└── README.md
+├── index.html         # Main IDE application markup, layout structure & dialogs
+├── styles.css         # Complete IDE styling, theme variables, Activity Bar & split views
+├── app.js             # Core IDE engine, runtimes (Web, Python Wasm, SQL, Markdown), i18n
+├── jszip.min.js       # JSZip library for in-browser ZIP archiving
+├── metadata.json      # Platform application manifest & capabilities
+└── README.md          # Comprehensive documentation and feature guide
 ```
 
 ---
 
 ## 🚀 Getting Started
 
-### 1. Download JSZip
-
-WebCode requires JSZip for ZIP export functionality.
-
-Place the library beside `index.html`:
-
-```text
-WebCode/
-│
-├── index.html
-└── jszip.min.js
-```
-
-Download JSZip from:
-
-https://stuk.github.io/jszip/
-
-### 2. Open WebCode
-
-Simply open:
-
-```text
-index.html
-```
-
-in a modern browser.
-
-No server setup is required.
+1. Open `index.html` in any modern web browser.
+2. Select your desired runtime by creating or opening a file (`.js`/`.html` for Web, `.py` for Python, `.sql` for SQL, or `.md` for Markdown).
+3. Click **▶ Run** or press `Ctrl + Enter` to execute.
+4. Export your work anytime as a `.zip` archive or share it via URL!
 
 ---
 
-## 🖥️ How It Works
+## 🔒 Security & Sandbox Isolation
 
-The preview window dynamically generates an HTML document and injects the user's HTML, CSS, and JavaScript:
-
-```javascript
-preview.srcdoc = `
-<!DOCTYPE html>
-<html>
-<head>
-<style>${css}</style>
-</head>
-<body>
-${html}
-<script>
-${js}
-<\/script>
-</body>
-</html>
-`;
-```
-
-Any runtime JavaScript errors are displayed directly in the preview panel.
-
----
-
-## 💾 Local Storage Structure
-
-### Draft Storage
-
-```text
-draft-html
-draft-css
-draft-js
-draft-name
-```
-
-### Project Database
-
-```text
-webcode-db
-```
-
-Example:
-
-```json
-{
-  "history": [
-    {
-      "name": "My Project",
-      "html": "<h1>Hello</h1>",
-      "css": "body{}",
-      "js": "console.log('Hello');",
-      "timestamp": "2026-01-01"
-    }
-  ]
-}
-```
-
----
-
-## 🔒 Security Features
-
-### Sandboxed Preview
-
-```html
-<iframe
-sandbox="allow-scripts allow-modals allow-forms allow-popups">
-</iframe>
-```
-
-This helps isolate executed user scripts from the editor itself.
-
-### Script Injection Protection
-
-User JavaScript is sanitized before injection:
-
-```javascript
-js.replace(
-    /<\/script>/gi,
-    "<\\/script>"
-);
-```
-
-This prevents accidental script tag termination.
-
----
-
-## 🌗 Theme System
-
-### Dark Mode
-
-```css
-:root{
-    --bg:#0f172a;
-    --card:#1e293b;
-    --border:#334155;
-    --text:#f8fafc;
-}
-```
-
-### Light Mode
-
-```css
-body.light{
-    --bg:#f8fafc;
-    --card:#ffffff;
-    --border:#d1d5db;
-    --text:#111827;
-}
-```
-
-The selected theme is automatically saved in Local Storage.
-
----
-
-## 📦 Export Example
-
-Generated ZIP:
-
-```text
-MyProject.zip
-│
-├── index.html
-├── style.css
-└── script.js
-```
-
-Generated HTML:
-
-```html
-<!DOCTYPE html>
-<html>
-<head>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-
-    <!-- User HTML -->
-
-    <script src="script.js"></script>
-</body>
-</html>
-```
-
-The exported project works independently outside of WebCode.
-
----
-
-## 📱 Responsive Design
-
-Desktop layout:
-
-```css
-grid-template-columns: repeat(3, 1fr);
-```
-
-Mobile layout:
-
-```css
-@media(max-width:1000px){
-    .editors{
-        grid-template-columns:1fr;
-    }
-}
-```
-
-The editor panels automatically stack vertically on smaller screens.
-
----
-
-## 🔄 Startup Lifecycle
-
-On launch, WebCode performs the following:
-
-1. Restore saved theme
-2. Restore draft content
-3. Load project history
-4. Refresh statistics
-5. Execute preview
-
-```javascript
-restoreDraft();
-loadHistory();
-updateStats();
-runCode();
-```
-
----
-
-## 🛠️ Future Enhancement Ideas
-
-Potential upgrades include:
-
-- Syntax highlighting
-- Code formatter
-- Console output panel
-- Multi-file project support
-- Project templates
-- GitHub integration
-- Progressive Web App (PWA)
-- AI-assisted coding tools
-
----
-
-## 🔧 Built With
-
-- HTML5
-- CSS3
-- Vanilla JavaScript
-- Local Storage API
-- Fullscreen API
-- Blob API
-- JSZip
-
----
-
-## ✅ Browser Compatibility
-
-| Browser | Supported |
-|----------|-----------|
-| Google Chrome | ✅ |
-| Microsoft Edge | ✅ |
-| Mozilla Firefox | ✅ |
-| Safari | ✅ |
-
-Recommended requirements:
-
-- ES6 Support
-- Local Storage
-- Fullscreen API
-- Blob API
+- **Iframe Sandboxing**: Web outputs are rendered inside an isolated iframe with `sandbox="allow-scripts allow-modals allow-same-origin allow-forms"`.
+- **Zero Backend Required**: All code execution occurs in-browser on the client side using WebAssembly (Pyodide) and local JavaScript engines.
 
 ---
 
 ## 📜 License
 
-Copyright © 2026
-
-Licensed under the **Apache License, Version 2.0** (the "License"); you may not use this project except in compliance with the License.
-
-You may obtain a copy of the License at:
-
-```text
-http://www.apache.org/licenses/LICENSE-2.0
-```
-
-Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an **"AS IS" BASIS**, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-
-See the License for the specific language governing permissions and limitations under the License.
-
----
-
-## ❤️ About WebCode
-
-WebCode is designed as a lightweight browser IDE for rapid front-end development and experimentation. It provides real-time feedback, automatic persistence, version history, import/export functionality, and theme customization, all without requiring any backend services.
-
-Perfect for:
-
-- Learning HTML, CSS, and JavaScript
-- Rapid prototyping
-- Classroom demonstrations
-- Front-end experimentation
-- Offline development
-
----
-
-### 🎉 Happy Coding with WebCode!
+Copyright © 2026. Licensed under the **Apache License, Version 2.0**.

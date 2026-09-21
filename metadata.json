@@ -1,0 +1,8 @@
+{
+  "name": "WebCode",
+  "description": "Universal in-browser IDE with multi-language runtimes (Web HTML/CSS/JS, Python 3 Pyodide, SQL Engine, Markdown), multi-file explorer, CodeMirror editor, interactive terminal, command palette, DevTools, and export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
