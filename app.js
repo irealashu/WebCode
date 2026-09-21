@@ -552,7 +552,202 @@ ReactDOM.createRoot(document.getElementById('root')).render(<App />);` }
   }
 ];
 
-// --- 5. CodeMirror Setup & Management ---
+// --- 5. Resilient Editor & CodeMirror Management ---
+class ResilientEditor {
+  constructor(target, options = {}) {
+    this.target = target;
+    this.options = Object.assign({
+      value: "",
+      tabSize: 2,
+      lineNumbers: true
+    }, options);
+    this.eventListeners = {
+      change: [],
+      cursorActivity: []
+    };
+    this.render();
+  }
+
+  render() {
+    this.target.innerHTML = "";
+    const container = document.createElement("div");
+    container.className = "resilient-editor";
+    
+    this.gutter = document.createElement("div");
+    this.gutter.className = "resilient-gutter";
+    
+    this.textarea = document.createElement("textarea");
+    this.textarea.className = "resilient-textarea";
+    this.textarea.value = this.options.value || "";
+    this.textarea.spellcheck = false;
+    this.textarea.autocomplete = "off";
+    this.textarea.autocapitalize = "off";
+
+    container.appendChild(this.gutter);
+    container.appendChild(this.textarea);
+    this.target.appendChild(container);
+
+    this.updateGutter();
+
+    this.textarea.addEventListener("input", () => {
+      this.updateGutter();
+      this.trigger("change");
+      this.trigger("cursorActivity");
+    });
+
+    this.textarea.addEventListener("scroll", () => {
+      this.gutter.scrollTop = this.textarea.scrollTop;
+    });
+
+    this.textarea.addEventListener("keyup", () => {
+      this.trigger("cursorActivity");
+    });
+
+    this.textarea.addEventListener("click", () => {
+      this.trigger("cursorActivity");
+    });
+
+    this.textarea.addEventListener("keydown", (e) => {
+      const tabSpaces = " ".repeat(this.options.tabSize || 2);
+      
+      // Handle Tab
+      if (e.key === "Tab") {
+        e.preventDefault();
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const val = this.textarea.value;
+        this.textarea.value = val.substring(0, start) + tabSpaces + val.substring(end);
+        this.textarea.selectionStart = this.textarea.selectionEnd = start + tabSpaces.length;
+        this.updateGutter();
+        this.trigger("change");
+        this.trigger("cursorActivity");
+      }
+      // Auto-indent on Enter
+      else if (e.key === "Enter") {
+        e.preventDefault();
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        const val = this.textarea.value;
+        const curLine = val.substring(0, start).split("\n").pop() || "";
+        const indentMatch = curLine.match(/^\s*/);
+        const indent = indentMatch ? indentMatch[0] : "";
+        const insert = "\n" + indent;
+        this.textarea.value = val.substring(0, start) + insert + val.substring(end);
+        this.textarea.selectionStart = this.textarea.selectionEnd = start + insert.length;
+        this.updateGutter();
+        this.trigger("change");
+        this.trigger("cursorActivity");
+      }
+      // Auto-close brackets
+      const pairs = { '(': ')', '[': ']', '{': '}', '"': '"', "'": "'", '`': '`' };
+      if (pairs[e.key]) {
+        const start = this.textarea.selectionStart;
+        const end = this.textarea.selectionEnd;
+        if (start === end) {
+          e.preventDefault();
+          const close = pairs[e.key];
+          const val = this.textarea.value;
+          this.textarea.value = val.substring(0, start) + e.key + close + val.substring(end);
+          this.textarea.selectionStart = this.textarea.selectionEnd = start + 1;
+          this.trigger("change");
+        }
+      }
+    });
+  }
+
+  updateGutter() {
+    const lines = (this.textarea.value || "").split("\n").length;
+    let numbers = [];
+    for (let i = 1; i <= Math.max(1, lines); i++) {
+      numbers.push(i);
+    }
+    this.gutter.textContent = numbers.join("\n");
+  }
+
+  getValue() {
+    return this.textarea ? this.textarea.value : "";
+  }
+
+  setValue(val) {
+    if (this.textarea) {
+      this.textarea.value = val || "";
+      this.updateGutter();
+      this.trigger("change");
+      this.trigger("cursorActivity");
+    }
+  }
+
+  getSelection() {
+    if (!this.textarea) return "";
+    return this.textarea.value.substring(this.textarea.selectionStart, this.textarea.selectionEnd);
+  }
+
+  replaceSelection(text) {
+    if (!this.textarea) return;
+    const start = this.textarea.selectionStart;
+    const end = this.textarea.selectionEnd;
+    const val = this.textarea.value;
+    this.textarea.value = val.substring(0, start) + text + val.substring(end);
+    this.textarea.selectionStart = this.textarea.selectionEnd = start + text.length;
+    this.updateGutter();
+    this.trigger("change");
+  }
+
+  getCursor() {
+    if (!this.textarea) return { line: 0, ch: 0 };
+    const pos = this.textarea.selectionStart || 0;
+    const lines = this.textarea.value.substring(0, pos).split("\n");
+    return {
+      line: Math.max(0, lines.length - 1),
+      ch: (lines[lines.length - 1] || "").length
+    };
+  }
+
+  lineCount() {
+    if (!this.textarea) return 1;
+    return (this.textarea.value || "").split("\n").length;
+  }
+
+  setOption(key, val) {
+    this.options[key] = val;
+    if (key === "tabSize" && this.textarea) {
+      this.textarea.style.tabSize = val;
+    }
+  }
+
+  getOption(key) {
+    return this.options[key];
+  }
+
+  on(event, handler) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event].push(handler);
+    }
+  }
+
+  off(event, handler) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event] = this.eventListeners[event].filter(h => h !== handler);
+    }
+  }
+
+  trigger(event) {
+    if (this.eventListeners[event]) {
+      this.eventListeners[event].forEach(fn => {
+        try { fn(this); } catch(e){}
+      });
+    }
+  }
+
+  clearHistory() {}
+  refresh() {
+    if (this.textarea) this.updateGutter();
+  }
+  focus() {
+    if (this.textarea) this.textarea.focus();
+  }
+}
+
 function initCodeMirror() {
   const target = document.getElementById("codeMirrorContainer");
   if (!target) return;
@@ -560,25 +755,35 @@ function initCodeMirror() {
   const initialFile = getFile(activeFileName);
   const initialMode = getModeForLanguage(initialFile ? initialFile.language : "html");
 
-  codeMirrorEditor = CodeMirror(target, {
-    value: initialFile ? initialFile.content : "",
-    mode: initialMode,
-    theme: "material-ocean",
-    lineNumbers: true,
-    lineWrapping: true,
-    matchBrackets: true,
-    autoCloseBrackets: true,
-    tabSize: 2,
-    indentUnit: 2,
-    indentWithTabs: false,
-    extraKeys: {
-      "Ctrl-Enter": () => runActiveFile(),
-      "Cmd-Enter": () => runActiveFile(),
-      "Ctrl-S": (cm) => { saveProjectSnapshot(); },
-      "Cmd-S": (cm) => { saveProjectSnapshot(); },
-      "Ctrl-Space": "autocomplete"
+  if (typeof CodeMirror === "function") {
+    try {
+      codeMirrorEditor = CodeMirror(target, {
+        value: initialFile ? initialFile.content : "",
+        mode: initialMode,
+        theme: "material-ocean",
+        lineNumbers: true,
+        lineWrapping: true,
+        matchBrackets: true,
+        autoCloseBrackets: true,
+        tabSize: 2,
+        indentUnit: 2,
+        indentWithTabs: false,
+        extraKeys: {
+          "Ctrl-Enter": () => runActiveFile(),
+          "Cmd-Enter": () => runActiveFile(),
+          "Ctrl-S": () => { saveProjectSnapshot(); },
+          "Cmd-S": () => { saveProjectSnapshot(); },
+          "Ctrl-Space": "autocomplete"
+        }
+      });
+    } catch (err) {
+      console.warn("CodeMirror initialization failed, activating resilient editor:", err);
+      codeMirrorEditor = new ResilientEditor(target, { value: initialFile ? initialFile.content : "" });
     }
-  });
+  } else {
+    // Resilient offline/firewall safe editor
+    codeMirrorEditor = new ResilientEditor(target, { value: initialFile ? initialFile.content : "" });
+  }
 
   codeMirrorEditor.on("change", () => {
     const active = getFile(activeFileName);
@@ -1269,7 +1474,11 @@ function renderSettingsView(container) {
 window.setFontSize = function(size) {
   const cmEl = document.querySelector(".CodeMirror");
   if (cmEl) cmEl.style.fontSize = size;
-  if (codeMirrorEditor) codeMirrorEditor.refresh();
+  const resTa = document.querySelector(".resilient-textarea");
+  if (resTa) resTa.style.fontSize = size;
+  const resGt = document.querySelector(".resilient-gutter");
+  if (resGt) resGt.style.fontSize = size;
+  if (codeMirrorEditor && typeof codeMirrorEditor.refresh === "function") codeMirrorEditor.refresh();
 };
 
 // --- 10. Command Palette (VS Code Style Ctrl+Shift+P) ---
@@ -1550,17 +1759,19 @@ document.addEventListener("keydown", (e) => {
 
 // --- 17. Application Bootloader ---
 window.addEventListener("DOMContentLoaded", () => {
-  restoreLocalDraft();
-  initCodeMirror();
-  renderFileExplorer();
+  try { restoreLocalDraft(); } catch(e){ console.warn("Draft restore:", e); }
+  try { initCodeMirror(); } catch(e){ console.warn("Editor init:", e); }
+  try { renderFileExplorer(); } catch(e){ console.warn("Explorer render:", e); }
 
   // Restore Theme & Language
-  const savedTheme = localStorage.getItem("wc_theme") || "midnight";
-  setIdeTheme(savedTheme);
-  setIdeLanguage(currentLang);
+  try {
+    const savedTheme = localStorage.getItem("wc_theme") || "midnight";
+    setIdeTheme(savedTheme);
+    setIdeLanguage(currentLang);
+  } catch(e){}
 
-  checkWorkspaceUrlHash();
+  try { checkWorkspaceUrlHash(); } catch(e){}
 
   // Initial Run
-  runActiveFile();
+  try { runActiveFile(); } catch(e){}
 });
