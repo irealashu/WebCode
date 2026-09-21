@@ -73,7 +73,7 @@ WebCode is a comprehensive, client-side in-browser Integrated Development Enviro
 - Interactive REPL prompt to evaluate JavaScript expressions or Python commands live.
 
 ### 📋 Ready-to-Use Project Templates
-- **⚡ Modern Web Starter**: HTML5, CSS3, and JavaScript interactive playground.
+- **⚡ Modern Web Starter**: Modern Cyber Sandbox featuring HTML5, CSS3, Web Audio API synthesizer, canvas ambient particle physics, live theme picker, and confetti particle effects.
 - **🐍 Python Data & Math Algorithms**: Monte Carlo simulations and mathematical calculations.
 - **🗄️ SQL Analytics & E-Commerce**: Multi-table database queries, aggregations, and category summaries.
 - **⚛️ React 18 JSX Counter App**: Interactive React 18 counter with live JSX transpilation.
